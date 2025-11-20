@@ -15,7 +15,7 @@ public class TaskFlowDbContext(DbContextOptions<TaskFlowDbContext> options) : Db
     public DbSet<Tag> Tags { get; set; }
     public DbSet<TaskTag> TaskTags { get; set; }
 
-    public override void OnModelCreating(ModelBuilder modelBuilder)
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
 
