@@ -3,6 +3,7 @@ using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using TaskFlowApi.Data;
+using TaskFlowApi.Extensions;
 using TaskFlowApi.Helpers;
 using TaskFlowApi.Services;
 
@@ -88,11 +89,12 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 app.UseCors(corsConfig);
+app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
 
 // 8. Run database migrations
-//await app.MigrateDbAsync();
+await app.MigrateDbAsync(); // Ensure database migrations are applied
 
 // 9. Start the application
 app.Run();

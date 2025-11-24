@@ -19,8 +19,38 @@ public class TaskFlowDbContext(DbContextOptions<TaskFlowDbContext> options) : Db
     {
         base.OnModelCreating(modelBuilder);
 
+        // Composite keys
         modelBuilder.Entity<BoardMember>().HasKey(bm => new { bm.BoardId, bm.UserId });
-
         modelBuilder.Entity<TaskTag>().HasKey(tt => new { tt.TaskId, tt.TagId });
+
+        // Board relationships
+        modelBuilder
+            .Entity<Board>()
+            .HasMany(b => b.Columns)
+            .WithOne(c => c.Board)
+            .HasForeignKey(c => c.BoardId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        // Task relationships
+        modelBuilder
+            .Entity<TaskItem>()
+            .HasOne(t => t.Column)
+            .WithMany(c => c.Tasks)
+            .HasForeignKey(t => t.ColumnId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder
+            .Entity<TaskItem>()
+            .HasOne(t => t.CreatedBy)
+            .WithMany()
+            .HasForeignKey(t => t.CreatedById)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder
+            .Entity<TaskItem>()
+            .HasOne(t => t.AssignedTo)
+            .WithMany()
+            .HasForeignKey(t => t.AssignedToId)
+            .OnDelete(DeleteBehavior.SetNull);
     }
 }
