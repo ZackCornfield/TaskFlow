@@ -2,6 +2,7 @@
 using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
 using TaskFlowApi.Data;
 using TaskFlowApi.Extensions;
 using TaskFlowApi.Helpers;
@@ -25,7 +26,38 @@ builder.Services.AddSingleton(jwtSettings);
 // 3. Add services to the DI container
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(c =>
+{
+    c.AddSecurityDefinition(
+        "Bearer",
+        new OpenApiSecurityScheme
+        {
+            Name = "Authorization",
+            Type = SecuritySchemeType.Http,
+            Scheme = "Bearer",
+            BearerFormat = "JWT",
+            In = ParameterLocation.Header,
+            Description =
+                "Enter 'Bearer [space] and then your token in the text input below.\n\nExample: 'Bearer abc123'",
+        }
+    );
+    c.AddSecurityRequirement(
+        new OpenApiSecurityRequirement
+        {
+            {
+                new OpenApiSecurityScheme
+                {
+                    Reference = new OpenApiReference
+                    {
+                        Type = ReferenceType.SecurityScheme,
+                        Id = "Bearer",
+                    },
+                },
+                new string[] { }
+            },
+        }
+    );
+});
 
 // 4. Configure database / Register Services
 var connString = builder.Configuration.GetConnectionString("DefaultConnection");
