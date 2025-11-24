@@ -43,11 +43,13 @@ public class AuthService(TaskFlowDbContext dbContext) : IAuthService
         var user = await dbContext.Users.FirstOrDefaultAsync(u => u.Email == request.Email);
         if (user is null)
         {
+            Console.WriteLine("User not found during login.");
             return null;
         }
 
-        if (!VerifyPassword(user.PasswordHash, user))
+        if (!VerifyPassword(request.Password, user))
         {
+            Console.WriteLine("Invalid password attempt.");
             return null;
         }
 
