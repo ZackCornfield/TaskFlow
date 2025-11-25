@@ -257,50 +257,5 @@ namespace TaskFlowApi.Controllers
                 );
             }
         }
-
-        [HttpPost("{boardId}/columns")]
-        public async Task<IActionResult> CreateColumn(
-            int boardId,
-            [FromBody] ColumnRequestDto request
-        )
-        {
-            try
-            {
-                var board = await dbContext.Boards.FindAsync(boardId);
-                if (board is null)
-                {
-                    return NotFound($"Board with ID {boardId} not found.");
-                }
-
-                var column = new Column
-                {
-                    BoardId = boardId,
-                    Title = request.Title,
-                    SortOrder = request.SortOrder,
-                };
-
-                dbContext.Columns.Add(column);
-                await dbContext.SaveChangesAsync();
-
-                return CreatedAtAction(
-                    nameof(CreateColumn),
-                    new { boardId = column.BoardId, id = column.Id },
-                    new ColumnDto
-                    {
-                        Id = column.Id,
-                        BoardId = column.BoardId,
-                        Title = column.Title,
-                        SortOrder = column.SortOrder,
-                    }
-                );
-            }
-            catch (Exception)
-            {
-                return StatusCode(
-                    StatusCodes.Status500InternalServerError,
-                    "An error occurred while creating the column."
-                );
-            }
-        }
     }
 }

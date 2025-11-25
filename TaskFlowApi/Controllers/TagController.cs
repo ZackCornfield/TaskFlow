@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using TaskFlowApi.Data;
 using TaskFlowApi.Dtos.Tag;
 using TaskFlowApi.Models;
@@ -62,6 +63,102 @@ namespace TaskFlowApi.Controllers
                     StatusCodes.Status500InternalServerError,
                     "An error occurred while deleting the tag."
                 );
+            }
+        }
+
+        [HttpPost("{taskId}/tags")]
+        public async Task<IActionResult> AddTagsToTask(int taskId, [FromBody] List<int> tagIds)
+        {
+            try
+            {
+                var task = await dbContext
+                    .Tasks.Include(t => t.Tags)
+                    .FirstOrDefaultAsync(t => t.Id == taskId);
+                if (task is null)
+                {
+                    return NotFound($"Task with ID {taskId} not found.");
+                }
+
+                var tags = await dbContext.Tags.Where(tag => tagIds.Contains(tag.Id)).ToListAsync();
+                if (tags.Count != tagIds.Count)
+                {
+                    return BadRequest("Some tags do not exist.");
+                }
+
+                foreach (var tag in tags)
+                {
+                    if (!task.Tags.Contains(tag))
+                    {
+                        task.Tags.Add(tag);
+                    }
+                }
+
+                await dbContext.SaveChangesAsync();
+
+                return NoContent();
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
+            }
+        }
+
+        [HttpDelete("{taskId}/tags")]
+        public async Task<IActionResult> RemoveTagsFromTask(int taskId, [FromBody] List<int> tagIds)
+        {
+            try
+            {
+                var task = await dbContext
+                    .Tasks.Include(t => t.Tags)
+                    .FirstOrDefaultAsync(t => t.Id == taskId);
+                if (task is null)
+                {
+                    return NotFound($"Task with ID {taskId} not found.");
+                }
+
+                var tagsToRemove = task.Tags.Where(tag => tagIds.Contains(tag.Id)).ToList();
+                foreach (var tag in tagsToRemove)
+                {
+                    task.Tags.Remove(tag);
+                }
+
+                await dbContext.SaveChangesAsync();
+
+                return NoContent();
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
+            }
+        }
+
+        [HttpGet("{taskId}/tags")]
+        public async Task<IActionResult> GetTagsForTask(int taskId)
+        {
+            try
+            {
+                var task = await dbContext
+                    .Tasks.Include(t => t.Tags)
+                    .FirstOrDefaultAsync(t => t.Id == taskId);
+                if (task is null)
+                {
+                    return NotFound($"Task with ID {taskId} not found.");
+                }
+
+                var tags = task
+                    .Tags.Select(tag => new TagDto
+                    {
+                        Id = tag.Id,
+                        Name = tag.Name,
+                        Color = tag.Color,
+                    })
+                    .ToList();
+
+                return Ok(tags);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
             }
         }
     }
