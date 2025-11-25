@@ -13,7 +13,6 @@ public class TaskFlowDbContext(DbContextOptions<TaskFlowDbContext> options) : Db
     public DbSet<TaskItem> Tasks { get; set; }
     public DbSet<Comment> Comments { get; set; }
     public DbSet<Tag> Tags { get; set; }
-    public DbSet<TaskTag> TaskTags { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -21,7 +20,6 @@ public class TaskFlowDbContext(DbContextOptions<TaskFlowDbContext> options) : Db
 
         // Composite keys
         modelBuilder.Entity<BoardMember>().HasKey(bm => new { bm.BoardId, bm.UserId });
-        modelBuilder.Entity<TaskTag>().HasKey(tt => new { tt.TaskId, tt.TagId });
 
         // Board relationships
         modelBuilder

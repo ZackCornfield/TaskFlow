@@ -1,8 +1,6 @@
-using System;
+namespace TaskFlowApi.Dtos.Tag;
 
-namespace TaskFlowApi.Models;
-
-public class Tag
+public record class TagDto
 {
     public int Id { get; set; }
     public string Name { get; set; } = null!;

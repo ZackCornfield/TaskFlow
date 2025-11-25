@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using TaskFlowApi.Data;
@@ -11,9 +12,11 @@ using TaskFlowApi.Data;
 namespace TaskFlowApi.Migrations
 {
     [DbContext(typeof(TaskFlowDbContext))]
-    partial class TaskFlowDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251125032119_RemoveTaskTag")]
+    partial class RemoveTaskTag
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

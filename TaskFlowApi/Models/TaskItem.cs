@@ -18,8 +18,8 @@ public class TaskItem
     public Guid CreatedById { get; set; }
     public User CreatedBy { get; set; } = null!;
     public Guid? AssignedToId { get; set; }
-    public User? AssignedTo { get; set; } = null!;
+    public User? AssignedTo { get; set; } = null;
 
-    public ICollection<TaskTag> TaskTags { get; set; } = new List<TaskTag>();
+    public ICollection<Tag> Tags { get; set; } = new List<Tag>();
     public ICollection<Comment> Comments { get; set; } = new List<Comment>();
 }

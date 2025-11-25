@@ -4,6 +4,9 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using TaskFlowApi.Data;
 using TaskFlowApi.Dtos.Board;
+using TaskFlowApi.Dtos.Column;
+using TaskFlowApi.Dtos.Comment;
+using TaskFlowApi.Dtos.Tag;
 using TaskFlowApi.Models;
 
 namespace TaskFlowApi.Controllers
@@ -31,7 +34,7 @@ namespace TaskFlowApi.Controllers
 
                 return Ok(boards);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 return StatusCode(
                     StatusCodes.Status500InternalServerError,
@@ -68,7 +71,7 @@ namespace TaskFlowApi.Controllers
                     }
                 );
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 return StatusCode(
                     StatusCodes.Status500InternalServerError,
@@ -83,7 +86,15 @@ namespace TaskFlowApi.Controllers
         {
             try
             {
-                var board = await dbContext.Boards.FindAsync(id);
+                var board = await dbContext
+                    .Boards.Include(b => b.Columns)
+                        .ThenInclude(c => c.Tasks)
+                            .ThenInclude(t => t.Tags)
+                    .Include(b => b.Columns)
+                        .ThenInclude(c => c.Tasks)
+                            .ThenInclude(t => t.Comments)
+                    .AsNoTracking()
+                    .FirstOrDefaultAsync(b => b.Id == id);
 
                 if (board is null)
                 {
@@ -97,14 +108,86 @@ namespace TaskFlowApi.Controllers
                         Title = board.Title,
                         OwnerId = board.OwnerId,
                         CreatedAt = board.CreatedAt,
+                        Columns = board
+                            .Columns.Select(c => new ColumnDto
+                            {
+                                Id = c.Id,
+                                BoardId = c.BoardId,
+                                Title = c.Title,
+                                SortOrder = c.SortOrder,
+                                Tasks = c
+                                    .Tasks.Select(t => new TaskDto
+                                    {
+                                        Id = t.Id,
+                                        ColumnId = t.ColumnId,
+                                        Title = t.Title,
+                                        Description = t.Description,
+                                        SortOrder = t.SortOrder,
+                                        DueDate = t.DueDate,
+                                        CreatedById = t.CreatedById,
+                                        AssignedToId = t.AssignedToId,
+                                        Tags = t
+                                            .Tags.Select(tag => new TagDto
+                                            {
+                                                Id = tag.Id,
+                                                Name = tag.Name,
+                                                Color = tag.Color,
+                                            })
+                                            .ToList(),
+                                        Comments = t
+                                            .Comments.Select(comment => new CommentDto
+                                            {
+                                                Id = comment.Id,
+                                                TaskId = comment.TaskId,
+                                                AuthorId = comment.AuthorId,
+                                                Content = comment.Content,
+                                                CreatedAt = comment.CreatedAt,
+                                            })
+                                            .ToList(),
+                                    })
+                                    .ToList(),
+                            })
+                            .ToList(),
+                        Tasks = board
+                            .Columns.SelectMany(c => c.Tasks)
+                            .Select(t => new TaskDto
+                            {
+                                Id = t.Id,
+                                ColumnId = t.ColumnId,
+                                Title = t.Title,
+                                Description = t.Description,
+                                SortOrder = t.SortOrder,
+                                DueDate = t.DueDate,
+                                CreatedById = t.CreatedById,
+                                AssignedToId = t.AssignedToId,
+                                Tags = t
+                                    .Tags.Select(tag => new TagDto
+                                    {
+                                        Id = tag.Id,
+                                        Name = tag.Name,
+                                        Color = tag.Color,
+                                    })
+                                    .ToList(),
+                                Comments = t
+                                    .Comments.Select(comment => new CommentDto
+                                    {
+                                        Id = comment.Id,
+                                        TaskId = comment.TaskId,
+                                        AuthorId = comment.AuthorId,
+                                        Content = comment.Content,
+                                        CreatedAt = comment.CreatedAt,
+                                    })
+                                    .ToList(),
+                            })
+                            .ToList(),
                     }
                 );
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 return StatusCode(
                     StatusCodes.Status500InternalServerError,
-                    "An error occurred while creating the board."
+                    "An error occurred while retrieving the board."
                 );
             }
         }
@@ -141,7 +224,7 @@ namespace TaskFlowApi.Controllers
                     }
                 );
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 return StatusCode(
                     StatusCodes.Status500InternalServerError,
@@ -166,11 +249,56 @@ namespace TaskFlowApi.Controllers
                 await dbContext.SaveChangesAsync();
                 return NoContent();
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 return StatusCode(
                     StatusCodes.Status500InternalServerError,
                     "An error occurred while creating the board."
+                );
+            }
+        }
+
+        [HttpPost("{boardId}/columns")]
+        public async Task<IActionResult> CreateColumn(
+            int boardId,
+            [FromBody] ColumnRequestDto request
+        )
+        {
+            try
+            {
+                var board = await dbContext.Boards.FindAsync(boardId);
+                if (board is null)
+                {
+                    return NotFound($"Board with ID {boardId} not found.");
+                }
+
+                var column = new Column
+                {
+                    BoardId = boardId,
+                    Title = request.Title,
+                    SortOrder = request.SortOrder,
+                };
+
+                dbContext.Columns.Add(column);
+                await dbContext.SaveChangesAsync();
+
+                return CreatedAtAction(
+                    nameof(CreateColumn),
+                    new { boardId = column.BoardId, id = column.Id },
+                    new ColumnDto
+                    {
+                        Id = column.Id,
+                        BoardId = column.BoardId,
+                        Title = column.Title,
+                        SortOrder = column.SortOrder,
+                    }
+                );
+            }
+            catch (Exception)
+            {
+                return StatusCode(
+                    StatusCodes.Status500InternalServerError,
+                    "An error occurred while creating the column."
                 );
             }
         }
