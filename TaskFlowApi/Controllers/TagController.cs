@@ -4,12 +4,13 @@ using Microsoft.EntityFrameworkCore;
 using TaskFlowApi.Data;
 using TaskFlowApi.Dtos.Tag;
 using TaskFlowApi.Models;
+using TaskFlowApi.Services;
 
 namespace TaskFlowApi.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class TagController(TaskFlowDbContext dbContext) : ControllerBase
+    public class TagController(TaskFlowDbContext dbContext, ITagService tagService) : ControllerBase
     {
         // Create and Delete Tags
         [HttpPost]
@@ -17,20 +18,9 @@ namespace TaskFlowApi.Controllers
         {
             try
             {
-                var tag = new Tag { Name = request.Name, Color = request.Color };
+                var tag = await tagService.CreateTagAsync(request);
 
-                // Assuming dbContext is available via dependency injection
-                dbContext.Tags.Add(tag);
-                await dbContext.SaveChangesAsync();
-
-                var tagDto = new TagDto
-                {
-                    Id = tag.Id,
-                    Name = tag.Name,
-                    Color = tag.Color,
-                };
-
-                return CreatedAtAction(nameof(CreateTag), new { id = tag.Id }, tagDto);
+                return CreatedAtAction(nameof(CreateTag), new { id = tag.Id }, tag);
             }
             catch (Exception)
             {
@@ -46,14 +36,7 @@ namespace TaskFlowApi.Controllers
         {
             try
             {
-                var tag = await dbContext.Tags.FindAsync(id);
-                if (tag is null)
-                {
-                    return NotFound($"Tag with ID {id} not found.");
-                }
-
-                dbContext.Tags.Remove(tag);
-                await dbContext.SaveChangesAsync();
+                await tagService.DeleteTagAsync(id);
 
                 return NoContent();
             }
@@ -71,31 +54,12 @@ namespace TaskFlowApi.Controllers
         {
             try
             {
-                var task = await dbContext
-                    .Tasks.Include(t => t.Tags)
-                    .FirstOrDefaultAsync(t => t.Id == taskId);
-                if (task is null)
-                {
-                    return NotFound($"Task with ID {taskId} not found.");
-                }
-
-                var tags = await dbContext.Tags.Where(tag => tagIds.Contains(tag.Id)).ToListAsync();
-                if (tags.Count != tagIds.Count)
-                {
-                    return BadRequest("Some tags do not exist.");
-                }
-
-                foreach (var tag in tags)
-                {
-                    if (!task.Tags.Contains(tag))
-                    {
-                        task.Tags.Add(tag);
-                    }
-                }
-
-                await dbContext.SaveChangesAsync();
-
+                await tagService.AddTagsToTaskAsync(taskId, tagIds);
                 return NoContent();
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(ex.Message);
             }
             catch (Exception ex)
             {
@@ -108,22 +72,7 @@ namespace TaskFlowApi.Controllers
         {
             try
             {
-                var task = await dbContext
-                    .Tasks.Include(t => t.Tags)
-                    .FirstOrDefaultAsync(t => t.Id == taskId);
-                if (task is null)
-                {
-                    return NotFound($"Task with ID {taskId} not found.");
-                }
-
-                var tagsToRemove = task.Tags.Where(tag => tagIds.Contains(tag.Id)).ToList();
-                foreach (var tag in tagsToRemove)
-                {
-                    task.Tags.Remove(tag);
-                }
-
-                await dbContext.SaveChangesAsync();
-
+                await tagService.RemoveTagsFromTaskAsync(taskId, tagIds);
                 return NoContent();
             }
             catch (Exception ex)
@@ -137,23 +86,7 @@ namespace TaskFlowApi.Controllers
         {
             try
             {
-                var task = await dbContext
-                    .Tasks.Include(t => t.Tags)
-                    .FirstOrDefaultAsync(t => t.Id == taskId);
-                if (task is null)
-                {
-                    return NotFound($"Task with ID {taskId} not found.");
-                }
-
-                var tags = task
-                    .Tags.Select(tag => new TagDto
-                    {
-                        Id = tag.Id,
-                        Name = tag.Name,
-                        Color = tag.Color,
-                    })
-                    .ToList();
-
+                var tags = await tagService.GetTagsForTaskAsync(taskId);
                 return Ok(tags);
             }
             catch (Exception ex)

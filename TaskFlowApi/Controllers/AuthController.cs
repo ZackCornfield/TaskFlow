@@ -1,15 +1,32 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using TaskFlowApi.Data;
 using TaskFlowApi.Dtos.Auth;
+using TaskFlowApi.Dtos.Board;
 using TaskFlowApi.Services;
 
 namespace TaskFlowApi.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class AuthController(IAuthService authService, ITokenService tokenService)
-        : ControllerBase
+    public class AuthController : ControllerBase
     {
+        private readonly IAuthService authService;
+        private readonly ITokenService tokenService;
+        private readonly TaskFlowDbContext dbContext;
+
+        public AuthController(
+            IAuthService authService,
+            ITokenService tokenService,
+            TaskFlowDbContext dbContext
+        )
+        {
+            this.authService = authService;
+            this.tokenService = tokenService;
+            this.dbContext = dbContext;
+        }
+
         [HttpPost("register")]
         public async Task<IActionResult> Register([FromBody] RegisterDto request)
         {
@@ -33,6 +50,7 @@ namespace TaskFlowApi.Controllers
                     Id = user.Id,
                     Email = user.Email,
                     DisplayName = user.DisplayName,
+                    CreatedAt = user.CreatedAt,
                     Token = token,
                 };
                 return CreatedAtAction(nameof(Register), result);
@@ -70,6 +88,7 @@ namespace TaskFlowApi.Controllers
                     Id = user.Id,
                     Email = user.Email,
                     DisplayName = user.DisplayName,
+                    CreatedAt = user.CreatedAt,
                     Token = token,
                 };
                 return Ok(result);

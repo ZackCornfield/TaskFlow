@@ -1,4 +1,5 @@
 using System;
+using System.Text.Json.Serialization;
 
 namespace TaskFlowApi.Models;
 
@@ -10,5 +11,6 @@ public class User
     public string PasswordHash { get; set; } = null!;
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
+    [JsonIgnore]
     public ICollection<BoardMember> Boards { get; set; } = new List<BoardMember>();
 }

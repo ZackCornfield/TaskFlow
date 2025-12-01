@@ -65,6 +65,12 @@ builder.Services.AddNpgsql<TaskFlowDbContext>(connString);
 
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<ITokenService, TokenService>();
+builder.Services.AddScoped<IBoardService, BoardService>();
+builder.Services.AddScoped<IBoardMemberService, BoardMemberService>();
+builder.Services.AddScoped<IColumnService, ColumnService>();
+builder.Services.AddScoped<ICommentService, CommentService>();
+builder.Services.AddScoped<ITaskService, TaskService>();
+builder.Services.AddScoped<ITagService, TagService>();
 
 // 5. Configure CORS
 builder.Services.AddCors(options =>

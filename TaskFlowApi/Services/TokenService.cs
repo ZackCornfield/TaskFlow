@@ -22,7 +22,7 @@ public class TokenService(JwtSettings jwtSettings) : ITokenService
         var claims = new[]
         {
             new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
-            new Claim(ClaimTypes.Name, user.DisplayName),
+            new Claim(ClaimTypes.Name, user.Id.ToString()), // Set Name claim to user.Id
             new Claim(ClaimTypes.Email, user.Email),
         };
 

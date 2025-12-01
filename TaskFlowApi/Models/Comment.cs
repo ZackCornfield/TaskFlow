@@ -1,4 +1,5 @@
 using System;
+using System.Text.Json.Serialization;
 
 namespace TaskFlowApi.Models;
 
@@ -6,6 +7,8 @@ public class Comment
 {
     public int Id { get; set; }
     public int TaskId { get; set; }
+
+    [JsonIgnore]
     public TaskItem Task { get; set; } = null!;
 
     public Guid AuthorId { get; set; }

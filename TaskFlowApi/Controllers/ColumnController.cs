@@ -1,17 +1,13 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using TaskFlowApi.Data;
-using TaskFlowApi.Dtos.Board;
 using TaskFlowApi.Dtos.Column;
-using TaskFlowApi.Dtos.Task;
-using TaskFlowApi.Models;
+using TaskFlowApi.Services;
 
 namespace TaskFlowApi.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class ColumnController(TaskFlowDbContext dbContext) : ControllerBase
+    public class ColumnController(IColumnService columnService) : ControllerBase
     {
         [HttpPost("{boardId}")]
         public async Task<IActionResult> CreateColumn(
@@ -21,33 +17,16 @@ namespace TaskFlowApi.Controllers
         {
             try
             {
-                var board = await dbContext.Boards.FindAsync(boardId);
-                if (board is null)
-                {
-                    return NotFound($"Board with ID {boardId} not found.");
-                }
-
-                var column = new Column
-                {
-                    BoardId = boardId,
-                    Title = request.Title,
-                    SortOrder = request.SortOrder,
-                };
-
-                dbContext.Columns.Add(column);
-                await dbContext.SaveChangesAsync();
-
+                var result = await columnService.CreateColumnAsync(boardId, request);
                 return CreatedAtAction(
                     nameof(CreateColumn),
-                    new { boardId = column.BoardId, id = column.Id },
-                    new ColumnDto
-                    {
-                        Id = column.Id,
-                        BoardId = column.BoardId,
-                        Title = column.Title,
-                        SortOrder = column.SortOrder,
-                    }
+                    new { boardId = result.BoardId, id = result.Id },
+                    result
                 );
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(ex.Message);
             }
             catch (Exception)
             {
@@ -63,26 +42,12 @@ namespace TaskFlowApi.Controllers
         {
             try
             {
-                var column = await dbContext.Columns.FindAsync(id);
-                if (column is null)
-                {
-                    return NotFound($"Column with ID {id} not found.");
-                }
-
-                column.Title = request.Title;
-                column.SortOrder = request.SortOrder;
-
-                await dbContext.SaveChangesAsync();
-
-                return Ok(
-                    new ColumnDto
-                    {
-                        Id = column.Id,
-                        BoardId = column.BoardId,
-                        Title = column.Title,
-                        SortOrder = column.SortOrder,
-                    }
-                );
+                var result = await columnService.UpdateColumnAsync(id, request);
+                return Ok(result);
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(ex.Message);
             }
             catch (Exception)
             {
@@ -98,16 +63,12 @@ namespace TaskFlowApi.Controllers
         {
             try
             {
-                var column = await dbContext.Columns.FindAsync(id);
-                if (column is null)
-                {
-                    return NotFound($"Column with ID {id} not found.");
-                }
-
-                dbContext.Columns.Remove(column);
-                await dbContext.SaveChangesAsync();
-
+                await columnService.DeleteColumnAsync(id);
                 return NoContent();
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(ex.Message);
             }
             catch (Exception)
             {

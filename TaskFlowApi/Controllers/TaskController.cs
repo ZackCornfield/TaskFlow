@@ -1,72 +1,36 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using TaskFlowApi.Data;
-using TaskFlowApi.Dtos.Board;
-using TaskFlowApi.Dtos.Comment;
-using TaskFlowApi.Dtos.Tag;
 using TaskFlowApi.Dtos.Task;
-using TaskFlowApi.Models;
+using TaskFlowApi.Services;
 
 namespace TaskFlowApi.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class TaskController(TaskFlowDbContext dbContext) : ControllerBase
+    public class TaskController : ControllerBase
     {
+        private readonly ITaskService _taskService;
+
+        public TaskController(ITaskService taskService)
+        {
+            _taskService = taskService;
+        }
+
         [HttpPost("{columnId}")]
         public async Task<IActionResult> CreateTask(int columnId, [FromBody] TaskRequestDto request)
         {
             try
             {
-                var column = await dbContext.Columns.FindAsync(columnId);
-                if (column is null)
-                {
-                    return NotFound($"Column with ID {columnId} not found");
-                }
-
-                if (request.AssignedToId.HasValue)
-                {
-                    var userExists = await dbContext.Users.AnyAsync(u =>
-                        u.Id == request.AssignedToId.Value
-                    );
-                    if (!userExists)
-                    {
-                        return BadRequest(
-                            $"User with ID {request.AssignedToId.Value} does not exist."
-                        );
-                    }
-                }
-
-                var task = new TaskItem
-                {
-                    ColumnId = columnId,
-                    Title = request.Title,
-                    Description = request.Description,
-                    SortOrder = request.SortOrder,
-                    DueDate = request.DueDate,
-                    CreatedById = request.CreatedById,
-                    AssignedToId = request.AssignedToId,
-                };
-
-                dbContext.Tasks.Add(task);
-                await dbContext.SaveChangesAsync();
-
-                return CreatedAtAction(
-                    nameof(CreateTask),
-                    new { id = task.Id },
-                    new TaskDto
-                    {
-                        Id = task.Id,
-                        ColumnId = task.ColumnId,
-                        Title = task.Title,
-                        Description = task.Description,
-                        SortOrder = task.SortOrder,
-                        DueDate = task.DueDate,
-                        CreatedById = task.CreatedById,
-                        AssignedToId = task.AssignedToId,
-                    }
-                );
+                var result = await _taskService.CreateTaskAsync(columnId, request);
+                return CreatedAtAction(nameof(CreateTask), new { id = result.Id }, result);
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
             }
             catch (Exception)
             {
@@ -82,40 +46,12 @@ namespace TaskFlowApi.Controllers
         {
             try
             {
-                var task = await dbContext.Tasks.FindAsync(id);
-                if (task is null)
-                {
-                    return NotFound($"Task with ID {id} not found.");
-                }
-
-                var newTask = new TaskItem
-                {
-                    Id = task.Id,
-                    ColumnId = task.ColumnId,
-                    Title = request.Title,
-                    Description = request.Description,
-                    SortOrder = request.SortOrder,
-                    DueDate = request.DueDate,
-                    CreatedById = request.CreatedById,
-                    AssignedToId = request.AssignedToId,
-                };
-
-                dbContext.Entry(task).CurrentValues.SetValues(newTask);
-                await dbContext.SaveChangesAsync();
-
-                return Ok(
-                    new TaskDto
-                    {
-                        Id = newTask.Id,
-                        ColumnId = newTask.ColumnId,
-                        Title = newTask.Title,
-                        Description = newTask.Description,
-                        SortOrder = newTask.SortOrder,
-                        DueDate = newTask.DueDate,
-                        CreatedById = newTask.CreatedById,
-                        AssignedToId = newTask.AssignedToId,
-                    }
-                );
+                var result = await _taskService.UpdateTaskAsync(id, request);
+                return Ok(result);
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(ex.Message);
             }
             catch (Exception)
             {
@@ -131,16 +67,12 @@ namespace TaskFlowApi.Controllers
         {
             try
             {
-                var task = await dbContext.Tasks.FindAsync(id);
-                if (task is null)
-                {
-                    return NotFound($"Task with ID {id} not found.");
-                }
-
-                dbContext.Tasks.Remove(task);
-                await dbContext.SaveChangesAsync();
-
+                await _taskService.DeleteTaskAsync(id);
                 return NoContent();
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(ex.Message);
             }
             catch (Exception)
             {
@@ -156,36 +88,12 @@ namespace TaskFlowApi.Controllers
         {
             try
             {
-                var task = await dbContext.Tasks.FindAsync(id);
-                if (task is null)
-                {
-                    return NotFound($"Task with ID {id} not found.");
-                }
-
-                var targetColumn = await dbContext.Columns.FindAsync(request.TargetColumnId);
-                if (targetColumn is null)
-                {
-                    return NotFound($"Target column with ID {request.TargetColumnId} not found.");
-                }
-
-                task.ColumnId = request.TargetColumnId;
-                task.SortOrder = request.SortOrder;
-
-                await dbContext.SaveChangesAsync();
-
-                return Ok(
-                    new TaskDto
-                    {
-                        Id = task.Id,
-                        ColumnId = task.ColumnId,
-                        Title = task.Title,
-                        Description = task.Description,
-                        SortOrder = task.SortOrder,
-                        DueDate = task.DueDate,
-                        CreatedById = task.CreatedById,
-                        AssignedToId = task.AssignedToId,
-                    }
-                );
+                var result = await _taskService.MoveTaskAsync(id, request);
+                return Ok(result);
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(ex.Message);
             }
             catch (Exception)
             {

@@ -10,5 +10,5 @@ public record class BoardDto
     public Guid OwnerId { get; set; }
     public DateTime CreatedAt { get; set; }
     public ICollection<ColumnDto> Columns { get; set; } = new List<ColumnDto>();
-    public ICollection<TaskDto> Tasks { get; set; } = new List<TaskDto>();
+    public ICollection<BoardMemberDto> Members { get; set; } = new List<BoardMemberDto>();
 }

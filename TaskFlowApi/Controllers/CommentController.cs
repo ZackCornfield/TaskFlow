@@ -4,12 +4,13 @@ using Microsoft.EntityFrameworkCore;
 using TaskFlowApi.Data;
 using TaskFlowApi.Dtos.Comment;
 using TaskFlowApi.Models;
+using TaskFlowApi.Services;
 
 namespace TaskFlowApi.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class CommentController(TaskFlowDbContext dbContext) : ControllerBase
+    public class CommentController(ICommentService commentService) : ControllerBase
     {
         [HttpPost("{taskId}")]
         public async Task<IActionResult> CreateComment(
@@ -19,26 +20,20 @@ namespace TaskFlowApi.Controllers
         {
             try
             {
-                var task = await dbContext
-                    .Tasks.Include(t => t.Comments)
-                    .FirstOrDefaultAsync(t => t.Id == taskId);
-                if (task is null)
-                {
-                    return NotFound($"Task with ID {taskId} not found.");
-                }
+                var comment = await commentService.CreateCommentAsync(taskId, request);
 
-                var comment = new Comment
-                {
-                    TaskId = taskId,
-                    AuthorId = request.AuthorId,
-                    Content = request.Content,
-                    CreatedAt = request.CreatedAt,
-                };
-
-                task.Comments.Add(comment);
-                await dbContext.SaveChangesAsync();
-
-                return CreatedAtAction(nameof(GetCommentsForTask), new { taskId }, comment);
+                return CreatedAtAction(
+                    nameof(GetCommentsForTask),
+                    new { taskId },
+                    new CommentDto
+                    {
+                        Id = comment.Id,
+                        TaskId = comment.TaskId,
+                        AuthorId = comment.AuthorId,
+                        Content = comment.Content,
+                        CreatedAt = comment.CreatedAt,
+                    }
+                );
             }
             catch (Exception ex)
             {
@@ -55,19 +50,7 @@ namespace TaskFlowApi.Controllers
         {
             try
             {
-                var comment = await dbContext.Comments.FirstOrDefaultAsync(c =>
-                    c.Id == commentId && c.TaskId == taskId
-                );
-                if (comment is null)
-                {
-                    return NotFound($"Comment with ID {commentId} not found for Task {taskId}.");
-                }
-
-                comment.Content = request.Content;
-                comment.CreatedAt = request.CreatedAt;
-
-                await dbContext.SaveChangesAsync();
-
+                var comment = await commentService.UpdateCommentAsync(commentId, request);
                 return NoContent();
             }
             catch (Exception ex)
@@ -81,16 +64,7 @@ namespace TaskFlowApi.Controllers
         {
             try
             {
-                var comment = await dbContext.Comments.FirstOrDefaultAsync(c =>
-                    c.Id == commentId && c.TaskId == taskId
-                );
-                if (comment is null)
-                {
-                    return NotFound($"Comment with ID {commentId} not found for Task {taskId}.");
-                }
-
-                dbContext.Comments.Remove(comment);
-                await dbContext.SaveChangesAsync();
+                await commentService.DeleteCommentAsync(commentId);
 
                 return NoContent();
             }
@@ -105,24 +79,7 @@ namespace TaskFlowApi.Controllers
         {
             try
             {
-                var task = await dbContext
-                    .Tasks.Include(t => t.Comments)
-                    .FirstOrDefaultAsync(t => t.Id == taskId);
-                if (task is null)
-                {
-                    return NotFound($"Task with ID {taskId} not found.");
-                }
-
-                var comments = task
-                    .Comments.Select(c => new CommentDto
-                    {
-                        Id = c.Id,
-                        TaskId = c.TaskId,
-                        AuthorId = c.AuthorId,
-                        Content = c.Content,
-                        CreatedAt = c.CreatedAt,
-                    })
-                    .ToList();
+                var comments = await commentService.GetCommentsForTaskAsync(taskId);
 
                 return Ok(comments);
             }

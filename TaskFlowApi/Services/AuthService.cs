@@ -12,6 +12,7 @@ public interface IAuthService
 {
     Task<User?> RegisterAsync(RegisterDto request);
     Task<User?> LoginAsync(LoginDto request);
+    Task<User?> GetUserByIdAsync(Guid userId);
 }
 
 public class AuthService(TaskFlowDbContext dbContext) : IAuthService
@@ -54,6 +55,11 @@ public class AuthService(TaskFlowDbContext dbContext) : IAuthService
         }
 
         return user;
+    }
+
+    public async Task<User?> GetUserByIdAsync(Guid userId)
+    {
+        return await dbContext.Users.FindAsync(userId);
     }
 
     public bool VerifyPassword(string password, User user)
