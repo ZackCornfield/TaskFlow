@@ -10,4 +10,5 @@ public class TaskRequestDto
     public DateTime? DueDate { get; set; }
     public Guid CreatedById { get; set; }
     public Guid? AssignedToId { get; set; }
+    public bool IsCompleted { get; set; } = false;
 }

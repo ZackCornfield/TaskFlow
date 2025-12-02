@@ -12,6 +12,8 @@ public record class TaskDto
     public double SortOrder { get; set; }
     public DateTime? DueDate { get; set; }
 
+    public bool IsCompleted { get; set; } = false;
+
     public DateTime CreatedAt { get; set; }
     public Guid CreatedById { get; set; }
     public Guid? AssignedToId { get; set; }

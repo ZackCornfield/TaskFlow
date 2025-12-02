@@ -22,4 +22,5 @@ public class TaskItem
 
     public ICollection<Tag> Tags { get; set; } = new List<Tag>();
     public ICollection<Comment> Comments { get; set; } = new List<Comment>();
+    public bool IsCompleted { get; set; } = false;
 }

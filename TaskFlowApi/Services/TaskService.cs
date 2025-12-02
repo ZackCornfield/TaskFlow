@@ -55,6 +55,7 @@ namespace TaskFlowApi.Services
                 DueDate = request.DueDate,
                 CreatedById = request.CreatedById,
                 AssignedToId = request.AssignedToId,
+                IsCompleted = request.IsCompleted, // Added IsCompleted property
             };
 
             _dbContext.Tasks.Add(task);
@@ -69,6 +70,7 @@ namespace TaskFlowApi.Services
                 DueDate = task.DueDate,
                 CreatedById = task.CreatedById,
                 AssignedToId = task.AssignedToId,
+                IsCompleted = task.IsCompleted, // Added IsCompleted property
                 Tags = new List<TagDto>(),
                 Comments = new List<CommentDto>(),
             };
@@ -87,6 +89,7 @@ namespace TaskFlowApi.Services
             task.SortOrder = request.SortOrder;
             task.DueDate = request.DueDate;
             task.AssignedToId = request.AssignedToId;
+            task.IsCompleted = request.IsCompleted; // Added IsCompleted property
 
             await _dbContext.SaveChangesAsync();
 
@@ -99,8 +102,11 @@ namespace TaskFlowApi.Services
                 DueDate = task.DueDate,
                 CreatedById = task.CreatedById,
                 AssignedToId = task.AssignedToId,
-                Tags = new List<TagDto>(),
-                Comments = new List<CommentDto>(),
+                IsCompleted = task.IsCompleted, // Added IsCompleted property
+                Tags = task.Tags.Select(t => new TagDto { Id = t.Id, Name = t.Name }).ToList(),
+                Comments = task
+                    .Comments.Select(c => new CommentDto { Id = c.Id, Content = c.Content })
+                    .ToList(),
             };
         }
 
