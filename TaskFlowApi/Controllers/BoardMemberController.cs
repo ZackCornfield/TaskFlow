@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using TaskFlowApi.Dtos.Board;
@@ -10,6 +11,7 @@ namespace TaskFlowApi.Controllers
     public class BoardMemberController(IBoardMemberService boardMemberService) : ControllerBase
     {
         [HttpPost("{boardId}/members")]
+        [Authorize]
         public async Task<IActionResult> AddBoardMember(
             int boardId,
             [FromBody] AddBoardMemberDto request
@@ -43,6 +45,7 @@ namespace TaskFlowApi.Controllers
         }
 
         [HttpDelete("{boardId}/members/{userId}")]
+        [Authorize]
         public async Task<IActionResult> RemoveBoardMember(int boardId, Guid userId)
         {
             try
@@ -65,6 +68,7 @@ namespace TaskFlowApi.Controllers
         }
 
         [HttpGet("{boardId}/members")]
+        [Authorize]
         public async Task<IActionResult> GetBoardMembers(int boardId)
         {
             try

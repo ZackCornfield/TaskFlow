@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using TaskFlowApi.Dtos.Column;
@@ -10,6 +11,7 @@ namespace TaskFlowApi.Controllers
     public class ColumnController(IColumnService columnService) : ControllerBase
     {
         [HttpPost("{boardId}")]
+        [Authorize]
         public async Task<IActionResult> CreateColumn(
             int boardId,
             [FromBody] ColumnRequestDto request
@@ -38,6 +40,7 @@ namespace TaskFlowApi.Controllers
         }
 
         [HttpPut("{id}")]
+        [Authorize]
         public async Task<IActionResult> UpdateColumn(int id, [FromBody] ColumnRequestDto request)
         {
             try
@@ -59,6 +62,7 @@ namespace TaskFlowApi.Controllers
         }
 
         [HttpDelete("{id}")]
+        [Authorize]
         public async Task<IActionResult> DeleteColumn(int id)
         {
             try

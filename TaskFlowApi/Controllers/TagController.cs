@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -14,6 +15,7 @@ namespace TaskFlowApi.Controllers
     {
         // Create and Delete Tags
         [HttpPost]
+        [Authorize]
         public async Task<IActionResult> CreateTag([FromBody] TagRequestDto request)
         {
             try
@@ -32,6 +34,7 @@ namespace TaskFlowApi.Controllers
         }
 
         [HttpDelete("{id}")]
+        [Authorize]
         public async Task<IActionResult> DeleteTag(int id)
         {
             try
@@ -50,6 +53,7 @@ namespace TaskFlowApi.Controllers
         }
 
         [HttpPost("{taskId}/tags")]
+        [Authorize]
         public async Task<IActionResult> AddTagsToTask(int taskId, [FromBody] List<int> tagIds)
         {
             try
@@ -68,6 +72,7 @@ namespace TaskFlowApi.Controllers
         }
 
         [HttpDelete("{taskId}/tags")]
+        [Authorize]
         public async Task<IActionResult> RemoveTagsFromTask(int taskId, [FromBody] List<int> tagIds)
         {
             try
@@ -82,6 +87,7 @@ namespace TaskFlowApi.Controllers
         }
 
         [HttpGet("{taskId}/tags")]
+        [Authorize]
         public async Task<IActionResult> GetTagsForTask(int taskId)
         {
             try

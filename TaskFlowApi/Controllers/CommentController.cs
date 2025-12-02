@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -13,6 +14,7 @@ namespace TaskFlowApi.Controllers
     public class CommentController(ICommentService commentService) : ControllerBase
     {
         [HttpPost("{taskId}")]
+        [Authorize]
         public async Task<IActionResult> CreateComment(
             int taskId,
             [FromBody] CommentRequestDto request
@@ -42,6 +44,7 @@ namespace TaskFlowApi.Controllers
         }
 
         [HttpPut("{taskId}/{commentId}")]
+        [Authorize]
         public async Task<IActionResult> UpdateComment(
             int taskId,
             int commentId,
@@ -60,6 +63,7 @@ namespace TaskFlowApi.Controllers
         }
 
         [HttpDelete("{taskId}/{commentId}")]
+        [Authorize]
         public async Task<IActionResult> DeleteComment(int taskId, int commentId)
         {
             try
@@ -75,6 +79,7 @@ namespace TaskFlowApi.Controllers
         }
 
         [HttpGet("{taskId}")]
+        [Authorize]
         public async Task<IActionResult> GetCommentsForTask(int taskId)
         {
             try
