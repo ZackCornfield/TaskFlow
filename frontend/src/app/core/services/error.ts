@@ -36,10 +36,10 @@ export class Error {
     this.errors.update((errors) => [...errors, newError]);
 
     // Automatically remove the message after 5 seconds
-    setTimeout(() => this.removeMessage(id), 5000);
+    setTimeout(() => this.removeError(id), 5000);
   }
 
-  removeMessage(id: number): void {
+  removeError(id: number): void {
     this.errors.update((errors) => errors.filter((error) => error.id !== id));
   }
 
