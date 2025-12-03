@@ -4,7 +4,7 @@ import { UserDto } from './auth';
 @Injectable({
   providedIn: 'root',
 })
-export class Storage {
+export class StorageService {
   private readonly TOKEN_KEY = 'auth_token';
   private readonly USER_KEY = 'auth_user';
 

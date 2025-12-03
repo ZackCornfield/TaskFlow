@@ -3,7 +3,7 @@ import { Injectable, signal } from '@angular/core';
 @Injectable({
   providedIn: 'root',
 })
-export class Loading {
+export class LoadingService {
   private loadingCount = 0;
   isLoading = signal<boolean>(false);
 

@@ -1,25 +1,24 @@
 import { Component, inject } from '@angular/core';
-import { Auth } from '../../../core/services/auth';
-import { Router, RouterLink } from '@angular/router';
-import { Error } from '../../../core/services/error';
+import { AuthService } from '../../../core/services/auth';
+import { ErrorService } from '../../../core/services/error';
 import {
   FormBuilder,
   FormGroup,
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
-import { CommonModule } from '@angular/common';
+import { Router, RouterLink } from '@angular/router';
 
 @Component({
   selector: 'app-login',
-  imports: [RouterLink, CommonModule, ReactiveFormsModule],
+  imports: [RouterLink, ReactiveFormsModule],
   templateUrl: './login.html',
   styleUrl: './login.css',
 })
 export class Login {
-  private authService = inject(Auth);
+  private authService = inject(AuthService);
   private router = inject(Router);
-  private errorService = inject(Error);
+  private errorService = inject(ErrorService);
   private fb = inject(FormBuilder);
 
   isSubmitting = false;

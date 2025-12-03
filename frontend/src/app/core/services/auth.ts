@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable, signal } from '@angular/core';
-import { Storage } from './storage';
+import { StorageService } from './storage';
 import { Router } from '@angular/router';
 import { Observable, tap } from 'rxjs';
 
@@ -26,11 +26,11 @@ export interface UserDto {
 @Injectable({
   providedIn: 'root',
 })
-export class Auth {
+export class AuthService {
   constructor(
     private http: HttpClient,
     private router: Router,
-    private storage: Storage
+    private storage: StorageService
   ) {
     this.loadUserFromStorage();
   }

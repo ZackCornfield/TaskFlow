@@ -1,11 +1,11 @@
 import { Component, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { Error, ErrorMessage } from '../../../core/services/error';
+
+import { ErrorService, ErrorMessage } from '../../../core/services/error';
 
 @Component({
   selector: 'app-notification',
   standalone: true,
-  imports: [CommonModule],
+  imports: [],
   template: `
     <div class="notification-container">
       @for (error of errorService.errors(); track error.id) {
@@ -124,5 +124,5 @@ import { Error, ErrorMessage } from '../../../core/services/error';
   ],
 })
 export class NotificationComponent {
-  errorService = inject(Error);
+  errorService = inject(ErrorService);
 }

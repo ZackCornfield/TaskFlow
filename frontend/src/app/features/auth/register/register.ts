@@ -1,25 +1,24 @@
 import { Component, inject } from '@angular/core';
-import { Auth } from '../../../core/services/auth';
+import { AuthService } from '../../../core/services/auth';
 import { Router, RouterLink } from '@angular/router';
-import { Error } from '../../../core/services/error';
+import { ErrorService } from '../../../core/services/error';
 import {
   FormBuilder,
   FormGroup,
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
-import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-register',
-  imports: [CommonModule, ReactiveFormsModule, RouterLink],
+  imports: [ReactiveFormsModule, RouterLink],
   templateUrl: './register.html',
   styleUrl: './register.css',
 })
 export class Register {
-  private authService = inject(Auth);
+  private authService = inject(AuthService);
   private router = inject(Router);
-  private errorService = inject(Error);
+  private errorService = inject(ErrorService);
   private fb = inject(FormBuilder);
 
   isSubmitting = false;
@@ -66,7 +65,7 @@ export class Register {
         this.errorService.showSuccess('Registration successful');
         this.router.navigate(['/dashboard']);
       },
-      error: (err) => {
+      error: () => {
         this.errorService.showError('Registration failed');
         this.isSubmitting = false;
       },

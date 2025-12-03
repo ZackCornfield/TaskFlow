@@ -1,1 +1,61 @@
-<p>board-list works!</p>
+<div class="dashboard">
+  <header class="header">
+    <div class="header-content">
+      <h1 class="title">TaskFlow</h1>
+      <div class="user-menu">
+        <span class="user-name">{{
+          authService.currentUser()?.displayName
+        }}</span>
+        <button (click)="logout()" class="btn-logout">Logout</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="main-content">
+    <div class="content-header">
+      <h2 class="content-title">Your Boards</h2>
+      <button (click)="showCreateModal = true" class="btn-create">
+        Create Board
+      </button>
+    </div>
+
+    <div class="boards-grid">
+      @for (board of boards(); track board.id) {
+      <div class="board-card" (click)="openBoard(board.id)">
+        <h3 class="board-title">{{ board.title }}</h3>
+        <p class="board-date">Created At: {{ formatDate(board.createdAt) }}</p>
+      </div>
+      } @if (boards.length === 0) {
+      <p class="empty-state">No boards available. Create one to get started!</p>
+      }
+    </div>
+  </main>
+
+  <!-- Create Board Modal -->
+  @if (showCreateModal) {
+  <div class="modal-overlay" (click)="closeModal()">
+    <div class="modal" (click)="$event.stopPropagation()">
+      <h2 class="modal-title">Create New Board</h2>
+      <label for="boardTitle">Board Title</label>
+      <input
+        id="boardTitle"
+        type="text"
+        [(ngModel)]="newBoardTitle"
+        placeholder="Board Title"
+        class="modal-input"
+        autofocus
+      />
+      <div class="modal-actions">
+        <button
+          (click)="createBoard()"
+          class="btn-submit"
+          disabled="!newBoardTitle.trim()"
+        >
+          Create
+        </button>
+        <button (click)="closeModal()" class="btn-cancel">Cancel</button>
+      </div>
+    </div>
+  </div>
+  }
+</div>

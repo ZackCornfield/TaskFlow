@@ -1,11 +1,11 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
-import { ColumnRequest, MoveTaskRequest } from '../models/board';
+import { ColumnRequest, MoveTaskRequest, Task } from '../modals/board';
 import { Observable } from 'rxjs';
 @Injectable({
   providedIn: 'root',
 })
-export class Task {
+export class TaskService {
   private http = inject(HttpClient);
   private readonly API_URL = 'https://localhost:5287/api/task';
 

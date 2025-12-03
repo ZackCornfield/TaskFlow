@@ -1,12 +1,12 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
-import { ColumnRequest } from '../models/board';
+import { Column, ColumnRequest } from '../modals/board';
 import { Observable } from 'rxjs';
 
 @Injectable({
   providedIn: 'root',
 })
-export class Column {
+export class ColumnService {
   private http = inject(HttpClient);
   private readonly API_URL = 'https://localhost:5287/api/column';
 

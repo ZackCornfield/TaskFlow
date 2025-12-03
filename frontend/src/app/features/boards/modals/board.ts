@@ -1,5 +1,5 @@
 export interface Board {
-  id: string;
+  id: number;
   title: string;
   ownerId: string;
   createdAt: Date;
@@ -8,7 +8,7 @@ export interface Board {
 }
 
 export interface Column {
-  id: string;
+  id: number;
   boardId: number;
   title: string;
   sortOrder: number;

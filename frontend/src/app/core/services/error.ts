@@ -9,7 +9,7 @@ export interface ErrorMessage {
 @Injectable({
   providedIn: 'root',
 })
-export class Error {
+export class ErrorService {
   private errorId = 0;
   errors = signal<ErrorMessage[]>([]);
 

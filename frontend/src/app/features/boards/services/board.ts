@@ -1,14 +1,14 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import { BoardRequest } from '../models/board';
+import { Board, BoardRequest } from '../modals/board';
 
 @Injectable({
   providedIn: 'root',
 })
-export class Board {
+export class BoardService {
   private http = inject(HttpClient);
-  private readonly API_URL = 'https://localhost:5287/api/board';
+  private readonly API_URL = 'http://localhost:5287/api/board';
 
   getBoards(): Observable<Board[]> {
     return this.http.get<Board[]>(this.API_URL);
