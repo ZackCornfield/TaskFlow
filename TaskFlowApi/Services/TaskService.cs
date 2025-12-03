@@ -64,6 +64,7 @@ namespace TaskFlowApi.Services
             return new TaskDto
             {
                 Id = task.Id,
+                ColumnId = task.ColumnId,
                 Title = task.Title,
                 Description = task.Description,
                 SortOrder = task.SortOrder,
@@ -96,6 +97,7 @@ namespace TaskFlowApi.Services
             return new TaskDto
             {
                 Id = task.Id,
+                ColumnId = task.ColumnId,
                 Title = task.Title,
                 Description = task.Description,
                 SortOrder = task.SortOrder,
@@ -146,6 +148,7 @@ namespace TaskFlowApi.Services
             return new TaskDto
             {
                 Id = task.Id,
+                ColumnId = task.ColumnId,
                 Title = task.Title,
                 Description = task.Description,
                 SortOrder = task.SortOrder,

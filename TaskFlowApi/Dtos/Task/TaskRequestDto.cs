@@ -4,6 +4,7 @@ namespace TaskFlowApi.Dtos.Task;
 
 public class TaskRequestDto
 {
+    public int ColumnId { get; set; }
     public string Title { get; set; } = null!;
     public string? Description { get; set; }
     public double SortOrder { get; set; }

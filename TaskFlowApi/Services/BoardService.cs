@@ -90,6 +90,7 @@ public class BoardService(TaskFlowDbContext dbContext) : IBoardService
                                 .Select(t => new TaskDto
                                 {
                                     Id = t.Id,
+                                    ColumnId = t.ColumnId,
                                     Title = t.Title,
                                     Description = t.Description,
                                     SortOrder = t.SortOrder,
