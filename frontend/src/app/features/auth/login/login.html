@@ -1,0 +1,60 @@
+<div class="auth-container">
+  <div class="auth-card">
+    <div class="auth-header">
+      <h1>TaskFlow</h1>
+      <h2>Sign in to your account</h2>
+    </div>
+
+    <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+      <div class="form-group">
+        <label for="email">Email address</label>
+        <input
+          id="email"
+          type="email"
+          formControlName="email"
+          placeholder="you@example.com"
+          [class.error]="
+            loginForm.get('email')?.invalid && loginForm.get('email')?.touched
+          "
+        />
+        @if (loginForm.get('email')?.invalid && loginForm.get('email')?.touched)
+        {
+        <span class="error-message">Please enter a valid email</span>
+        }
+      </div>
+
+      <div class="form-group">
+        <label for="password">Password</label>
+        <input
+          id="password"
+          type="password"
+          formControlName="password"
+          placeholder="••••••••"
+          [class.error]="
+            loginForm.get('password')?.invalid &&
+            loginForm.get('password')?.touched
+          "
+        />
+        @if (loginForm.get('password')?.invalid &&
+        loginForm.get('password')?.touched) {
+        <span class="error-message">Password is required</span>
+        }
+      </div>
+
+      <button
+        type="submit"
+        class="btn-primary"
+        [disabled]="loginForm.invalid || isSubmitting"
+      >
+        {{ isSubmitting ? "Signing in..." : "Sign in" }}
+      </button>
+    </form>
+
+    <div class="auth-footer">
+      <p>
+        Don't have an account?
+        <a routerLink="/register">Sign up</a>
+      </p>
+    </div>
+  </div>
+</div>
