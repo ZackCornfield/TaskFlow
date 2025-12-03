@@ -25,8 +25,8 @@ export class Login {
   isSubmitting = false;
 
   loginForm: FormGroup = this.fb.group({
-    email: ['', Validators.required, Validators.email],
-    password: ['', Validators.required, Validators.minLength(6)],
+    email: ['', [Validators.required, Validators.email]],
+    password: ['', [Validators.required, Validators.minLength(6)]],
   });
 
   onSubmit(): void {

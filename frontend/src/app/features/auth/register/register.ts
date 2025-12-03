@@ -1,12 +1,18 @@
 import { Component, inject } from '@angular/core';
 import { Auth } from '../../../core/services/auth';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { Error } from '../../../core/services/error';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import {
+  FormBuilder,
+  FormGroup,
+  ReactiveFormsModule,
+  Validators,
+} from '@angular/forms';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-register',
-  imports: [],
+  imports: [CommonModule, ReactiveFormsModule, RouterLink],
   templateUrl: './register.html',
   styleUrl: './register.css',
 })
@@ -20,10 +26,10 @@ export class Register {
 
   registerForm: FormGroup = this.fb.group(
     {
-      displayName: ['', Validators.required],
-      email: ['', Validators.required, Validators.email],
-      password: ['', Validators.required, Validators.minLength(6)],
-      confirmPassword: ['', Validators.required],
+      displayName: ['', [Validators.required]],
+      email: ['', [Validators.required, Validators.email]],
+      password: ['', [Validators.required, Validators.minLength(6)]],
+      confirmPassword: ['', [Validators.required]],
     },
     {
       validators: this.passwordMatchValidator,
@@ -37,7 +43,7 @@ export class Register {
     if (
       password &&
       confirmPassword &&
-      password.value === confirmPassword.value
+      password.value !== confirmPassword.value
     ) {
       return { passwordMismatch: true };
     }
