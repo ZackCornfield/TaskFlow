@@ -53,7 +53,7 @@ export class BoardList implements OnInit {
     this.boardService.createBoard(newBoard).subscribe({
       next: (board) => {
         this.boards.update((boards) => [...boards, board]);
-        this.errorService.showError('Board created successfully');
+        this.errorService.showSuccess('Board created successfully');
         this.closeModal();
         this.router.navigate(['/boards', board.id]);
       },
