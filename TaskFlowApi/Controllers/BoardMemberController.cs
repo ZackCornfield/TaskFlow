@@ -19,7 +19,7 @@ namespace TaskFlowApi.Controllers
         {
             try
             {
-                var boardMember = await boardMemberService.AddBoardMemberAsync(boardId, request);
+                var boardMember = await boardMemberService.AddBoardMemberAsync(request);
                 if (boardMember is null)
                 {
                     return NotFound("Board or user not found.");
@@ -27,7 +27,7 @@ namespace TaskFlowApi.Controllers
 
                 return CreatedAtAction(
                     nameof(AddBoardMember),
-                    new { boardId, userId = request.UserId },
+                    new { boardId = request.BoardId, userId = request.UserId },
                     boardMember
                 );
             }

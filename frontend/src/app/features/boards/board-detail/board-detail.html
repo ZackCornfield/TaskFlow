@@ -1,1 +1,158 @@
-<p>board-detail works!</p>
+<div class="board-container">
+  <!-- Header -->
+  <header class="header">
+    <div class="header-content">
+      <div class="header-left">
+        <button class="btn-back" (click)="goBack()">← Back</button>
+        <h1 class="board-title">{{ board()?.title }}</h1>
+      </div>
+      <div class="user-menu">
+        <span class="user-name">{{
+          authService.currentUser()?.displayName
+        }}</span>
+        <button class="btn-logout" (click)="logout()">Logout</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Kanban Board -->
+  <main class="board-content">
+    <div class="columns-container" cdkDropListGroup>
+      <!-- Columns -->
+      @for (column of board()?.columns; track column.id) {
+      <div class="column">
+        <div class="column-header">
+          <h3>{{ column.title }}</h3>
+          <span class="task-count">{{ column.tasks.length }}</span>
+        </div>
+
+        <!-- Tasks Drop Zone -->
+        <div
+          class="tasks-list"
+          cdkDropList
+          [cdkDropListData]="column.tasks"
+          [id]="'column-' + column.id"
+          (cdkDropListDropped)="onTaskDrop($event, column)"
+        >
+          @for (task of column.tasks; track task.id) {
+          <app-task-card
+            [task]="task"
+            cdkDrag
+            (taskClick)="openTaskDetail(task, column)"
+            (deleteTask)="deleteTask(task.id, column)"
+            (toggleComplete)="toggleTaskCompletion(task, column)"
+          />
+          } @if (column.tasks.length === 0) {
+          <div class="empty-column">
+            <p>No tasks yet</p>
+          </div>
+          }
+        </div>
+
+        <!-- Add Task Button -->
+        <button class="btn-add-task" (click)="showAddTaskModal(column)">
+          + Add Task
+        </button>
+      </div>
+      }
+
+      <!-- Add Column Button -->
+      <div class="add-column">
+        <button class="btn-add-column" (click)="showAddColumnModal = true">
+          + Add Column
+        </button>
+      </div>
+    </div>
+  </main>
+
+  <!-- Add Column Modal -->
+  @if (showAddColumnModal) {
+  <div class="modal-overlay" (click)="closeAddColumnModal()">
+    <div class="modal" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3>Add Column</h3>
+        <button class="btn-close" (click)="closeAddColumnModal()">✕</button>
+      </div>
+      <div class="modal-body">
+        <label for="columnTitle">Column Title</label>
+        <input
+          id="columnTitle"
+          type="text"
+          [(ngModel)]="newColumnTitle"
+          placeholder="e.g., To Do, In Progress, Done"
+          (keyup.enter)="addColumn()"
+          autofocus
+        />
+      </div>
+      <div class="modal-footer">
+        <button class="btn-secondary" (click)="closeAddColumnModal()">
+          Cancel
+        </button>
+        <button
+          class="btn-primary"
+          (click)="addColumn()"
+          [disabled]="!newColumnTitle.trim()"
+        >
+          Add Column
+        </button>
+      </div>
+    </div>
+  </div>
+  }
+
+  <!-- Add Task Modal -->
+  @if (showAddTaskModalFlag && selectedColumn()) {
+  <div class="modal-overlay" (click)="closeAddTaskModal()">
+    <div class="modal" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3>Add Task to {{ selectedColumn()?.title }}</h3>
+        <button class="btn-close" (click)="closeAddTaskModal()">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label for="taskTitle">Task Title</label>
+          <input
+            id="taskTitle"
+            type="text"
+            [(ngModel)]="newTaskTitle"
+            placeholder="Enter task title"
+            autofocus
+          />
+        </div>
+        <div class="form-group">
+          <label for="taskDescription">Description (optional)</label>
+          <textarea
+            id="taskDescription"
+            [(ngModel)]="newTaskDescription"
+            placeholder="Enter task description"
+            rows="3"
+          ></textarea>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-secondary" (click)="closeAddTaskModal()">
+          Cancel
+        </button>
+        <button
+          class="btn-primary"
+          (click)="addTask()"
+          [disabled]="!newTaskTitle.trim()"
+        >
+          Add Task
+        </button>
+      </div>
+    </div>
+  </div>
+  }
+
+  <!-- Task Detail Modal -->
+  @if (selectedTask()) {
+  <app-task-details
+    [task]="selectedTask()"
+    (taskClick)="closeTaskDetail()"
+    (deleteTask)="deleteTask(selectedTask()?.id!, selectedColumn()!)"
+    (addComment)="addCommentToTask(selectedTask()?.id!, $event)"
+    (toggleComplete)="toggleTaskCompletion(selectedTask()!, selectedColumn()!)"
+  ></app-task-details>
+  }
+</div>

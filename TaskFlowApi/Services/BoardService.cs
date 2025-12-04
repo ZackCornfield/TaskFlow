@@ -18,7 +18,8 @@ public interface IBoardService
     Task<List<BoardDto>> GetUserBoardsAsync(Guid userId);
 }
 
-public class BoardService(TaskFlowDbContext dbContext) : IBoardService
+public class BoardService(TaskFlowDbContext dbContext, IBoardMemberService boardMemberService)
+    : IBoardService
 {
     public async Task<List<BoardDto>> GetBoardsAsync()
     {
@@ -45,6 +46,15 @@ public class BoardService(TaskFlowDbContext dbContext) : IBoardService
 
         dbContext.Boards.Add(board);
         await dbContext.SaveChangesAsync();
+
+        await boardMemberService.AddBoardMemberAsync(
+            new AddBoardMemberDto
+            {
+                UserId = board.OwnerId,
+                BoardId = board.Id,
+                Role = "Owner",
+            }
+        );
 
         return new BoardDto
         {
@@ -112,6 +122,7 @@ public class BoardService(TaskFlowDbContext dbContext) : IBoardService
                                             Id = c.Id,
                                             TaskId = c.TaskId,
                                             AuthorId = c.AuthorId,
+                                            AuthorName = c.AuthorName,
                                             Content = c.Content,
                                             CreatedAt = c.CreatedAt,
                                         })

@@ -53,6 +53,7 @@ namespace TaskFlowApi.Services
                 Description = request.Description,
                 SortOrder = request.SortOrder,
                 DueDate = request.DueDate,
+                CreatedAt = request.CreatedAt,
                 CreatedById = request.CreatedById,
                 AssignedToId = request.AssignedToId,
                 IsCompleted = request.IsCompleted, // Added IsCompleted property
@@ -69,6 +70,7 @@ namespace TaskFlowApi.Services
                 Description = task.Description,
                 SortOrder = task.SortOrder,
                 DueDate = task.DueDate,
+                CreatedAt = task.CreatedAt,
                 CreatedById = task.CreatedById,
                 AssignedToId = task.AssignedToId,
                 IsCompleted = task.IsCompleted, // Added IsCompleted property
@@ -79,37 +81,49 @@ namespace TaskFlowApi.Services
 
         public async Task<TaskDto> UpdateTaskAsync(int id, TaskRequestDto request)
         {
-            var task = await _dbContext.Tasks.FindAsync(id);
+            var task = await _dbContext
+                .Tasks.Include(t => t.Comments) // Explicitly include Comments
+                .Where(t => t.Id == id)
+                .Select(t => new TaskDto
+                {
+                    Id = id,
+                    Title = request.Title,
+                    Description = request.Description,
+                    SortOrder = request.SortOrder,
+                    DueDate = request.DueDate,
+                    CreatedAt = t.CreatedAt,
+                    CreatedById = t.CreatedById,
+                    AssignedToId = request.AssignedToId,
+                    IsCompleted = request.IsCompleted,
+                    Tags = t
+                        .Tags.Select(tag => new TagDto
+                        {
+                            Id = tag.Id,
+                            Name = tag.Name,
+                            Color = tag.Color,
+                        })
+                        .ToList(),
+                    Comments = t
+                        .Comments.Select(c => new CommentDto
+                        {
+                            Id = c.Id,
+                            TaskId = c.TaskId,
+                            AuthorId = c.AuthorId,
+                            AuthorName = c.AuthorName,
+                            Content = c.Content,
+                            CreatedAt = c.CreatedAt,
+                        })
+                        .ToList(),
+                })
+                .FirstOrDefaultAsync();
+
             if (task is null)
             {
                 throw new KeyNotFoundException($"Task with ID {id} not found.");
             }
 
-            task.Title = request.Title;
-            task.Description = request.Description;
-            task.SortOrder = request.SortOrder;
-            task.DueDate = request.DueDate;
-            task.AssignedToId = request.AssignedToId;
-            task.IsCompleted = request.IsCompleted; // Added IsCompleted property
-
             await _dbContext.SaveChangesAsync();
-
-            return new TaskDto
-            {
-                Id = task.Id,
-                ColumnId = task.ColumnId,
-                Title = task.Title,
-                Description = task.Description,
-                SortOrder = task.SortOrder,
-                DueDate = task.DueDate,
-                CreatedById = task.CreatedById,
-                AssignedToId = task.AssignedToId,
-                IsCompleted = task.IsCompleted, // Added IsCompleted property
-                Tags = task.Tags.Select(t => new TagDto { Id = t.Id, Name = t.Name }).ToList(),
-                Comments = task
-                    .Comments.Select(c => new CommentDto { Id = c.Id, Content = c.Content })
-                    .ToList(),
-            };
+            return task;
         }
 
         public async Task DeleteTaskAsync(int id)
@@ -153,6 +167,7 @@ namespace TaskFlowApi.Services
                 Description = task.Description,
                 SortOrder = task.SortOrder,
                 DueDate = task.DueDate,
+                CreatedAt = task.CreatedAt,
                 CreatedById = task.CreatedById,
                 AssignedToId = task.AssignedToId,
                 Tags = new List<TagDto>(),

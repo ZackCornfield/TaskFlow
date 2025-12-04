@@ -2,18 +2,23 @@ import { Component, inject, input, output } from '@angular/core';
 import { Task } from '../../modals/board';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { DateService } from '../../services/date';
 
 @Component({
-  selector: 'app-task-card',
+  selector: 'app-task-details',
   imports: [CommonModule, FormsModule],
-  templateUrl: './task-card.html',
-  styleUrl: './task-card.css',
+  templateUrl: './task-details.html',
+  styleUrl: './task-details.css',
 })
-export class TaskCard {
-  task = input<Task>();
+export class TaskDetails {
+  task = input<Task | null>(null);
   taskClick = output<void>();
   deleteTask = output<void>();
+  addComment = output<string>();
   toggleComplete = output<void>();
+  private dateService = inject(DateService);
+
+  newComment: string = '';
 
   onDelete(event: Event) {
     event.stopPropagation();
@@ -23,6 +28,12 @@ export class TaskCard {
   onToggleComplete(event: Event) {
     event.stopPropagation();
     this.toggleComplete.emit();
+  }
+
+  onAddComment(): void {
+    if (!this.newComment.trim()) return;
+    this.addComment.emit(this.newComment.trim());
+    this.newComment = '';
   }
 
   formatDueDate(date: Date | string): string {
@@ -59,5 +70,14 @@ export class TaskCard {
 
     const now = new Date();
     return parsedDate < now;
+  }
+
+  formatDateFull(date: Date | string): string {
+    const parsedDate = new Date(date);
+    if (isNaN(parsedDate.getTime())) {
+      return 'Invalid date';
+    }
+
+    return this.dateService.toDateString(parsedDate);
   }
 }

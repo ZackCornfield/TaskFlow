@@ -34,6 +34,7 @@ export interface Comment {
   id: number;
   taskId: number;
   authorId: string;
+  authorName: string;
   content: string;
   createdAt: Date;
 }
@@ -69,6 +70,7 @@ export interface TaskRequest {
   description?: string;
   sortOrder: number;
   dueDate?: Date;
+  createdAt: Date;
   createdById: string;
   assignedToId?: string;
   isCompleted: boolean;
@@ -81,6 +83,7 @@ export interface MoveTaskRequest {
 
 export interface CommentRequest {
   authorId: string;
+  authorName: string;
   taskId: number;
   content: string;
   createdAt: Date;

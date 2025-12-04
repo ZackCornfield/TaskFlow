@@ -24,18 +24,7 @@ namespace TaskFlowApi.Controllers
             {
                 var comment = await commentService.CreateCommentAsync(taskId, request);
 
-                return CreatedAtAction(
-                    nameof(GetCommentsForTask),
-                    new { taskId },
-                    new CommentDto
-                    {
-                        Id = comment.Id,
-                        TaskId = comment.TaskId,
-                        AuthorId = comment.AuthorId,
-                        Content = comment.Content,
-                        CreatedAt = comment.CreatedAt,
-                    }
-                );
+                return CreatedAtAction(nameof(GetCommentsForTask), new { taskId }, comment);
             }
             catch (Exception ex)
             {

@@ -32,6 +32,7 @@ public class CommentService(TaskFlowDbContext dbContext) : ICommentService
         {
             TaskId = TaskId,
             AuthorId = request.AuthorId,
+            AuthorName = request.AuthorName,
             Content = request.Content,
             CreatedAt = request.CreatedAt,
         };
@@ -44,6 +45,7 @@ public class CommentService(TaskFlowDbContext dbContext) : ICommentService
             Id = Comment.Id,
             TaskId = Comment.TaskId,
             AuthorId = Comment.AuthorId,
+            AuthorName = Comment.AuthorName,
             Content = Comment.Content,
             CreatedAt = Comment.CreatedAt,
         };

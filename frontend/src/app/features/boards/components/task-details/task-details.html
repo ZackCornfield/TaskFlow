@@ -1,0 +1,97 @@
+<div class="modal-overlay" (click)="taskClick.emit()">
+  <div
+    class="task-detail-modal"
+    [class.completed]="task()?.isCompleted"
+    (click)="$event.stopPropagation()"
+  >
+    <!-- Modal Header -->
+    <div class="task-header">
+      <div class="title-wrapper">
+        <input
+          type="checkbox"
+          class="task-checkbox"
+          [checked]="task()?.isCompleted"
+          (click)="onToggleComplete($event)"
+          title="Mark as complete"
+        />
+        <h1>{{ task()?.title }}</h1>
+      </div>
+      <button class="btn-close" (click)="onDelete($event)" title="Delete Task">
+        ✕
+      </button>
+    </div>
+
+    <!-- Modal Body -->
+    <div class="task-body">
+      <!-- Description -->
+      @if (task()?.description) {
+      <p class="task-description">{{ task()?.description }}</p>
+      }
+
+      <!-- Meta Information -->
+      <div class="task-meta">
+        <div class="meta-item">
+          <strong>Created:</strong>
+          <span>{{ formatDateFull(task()?.createdAt!) }}</span>
+        </div>
+        @if(task()?.dueDate) {
+        <div class="meta-item">
+          <strong>Due Date:</strong>
+          <span class="due-date" [class.overdue]="isOverdue(task()?.dueDate!)">
+            {{ formatDueDate(task()?.dueDate!) }}
+          </span>
+        </div>
+        }
+      </div>
+
+      <!-- Tags -->
+      @let tags = task()?.tags; @if (tags && tags.length > 0) {
+      <div class="tags-section">
+        <h3>Tags</h3>
+        <div class="tags">
+          @for (tag of tags; track tag.id) {
+          <span class="tag" [style.background-color]="tag.color">
+            {{ tag.name }}
+          </span>
+          }
+        </div>
+      </div>
+      }
+
+      <!-- Comments Section -->
+      <div class="comments-section">
+        <h3>Comments</h3>
+        @let comments = task()?.comments; @if (comments && comments.length > 0)
+        {
+        <div class="comments-list">
+          @for (comment of comments; track comment.id) {
+          <div class="comment">
+            <div class="comment-header">
+              <p class="comment-author">{{ comment.authorName }}</p>
+              <span class="comment-date">{{
+                formatDateFull(comment.createdAt)
+              }}</span>
+            </div>
+            <p class="comment-content">{{ comment.content }}</p>
+          </div>
+          }
+        </div>
+        } @else {
+        <p class="no-comments">No comments yet. Be the first to comment!</p>
+        }
+
+        <!-- Add Comment Form -->
+        <div class="add-comment">
+          <textarea
+            [(ngModel)]="newComment"
+            placeholder="Write a comment..."
+            (keydown.enter)="onAddComment()"
+          ></textarea>
+          <button (click)="onAddComment()" [disabled]="!newComment.trim()">
+            Add Comment
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

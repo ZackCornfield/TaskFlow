@@ -7,16 +7,16 @@ namespace TaskFlowApi.Services;
 
 public interface IBoardMemberService
 {
-    Task<BoardMember?> AddBoardMemberAsync(int boardId, AddBoardMemberDto request);
+    Task<BoardMember?> AddBoardMemberAsync(AddBoardMemberDto request);
     Task<bool> RemoveBoardMemberAsync(int boardId, Guid userId);
     Task<List<BoardMemberDto>?> GetBoardMembersAsync(int boardId);
 }
 
 public class BoardMemberService(TaskFlowDbContext dbContext) : IBoardMemberService
 {
-    public async Task<BoardMember?> AddBoardMemberAsync(int boardId, AddBoardMemberDto request)
+    public async Task<BoardMember?> AddBoardMemberAsync(AddBoardMemberDto request)
     {
-        var board = await dbContext.Boards.FindAsync(boardId);
+        var board = await dbContext.Boards.FindAsync(request.BoardId);
         if (board is null)
         {
             return null;
@@ -29,7 +29,7 @@ public class BoardMemberService(TaskFlowDbContext dbContext) : IBoardMemberServi
         }
 
         var existingMember = await dbContext.BoardMembers.FirstOrDefaultAsync(bm =>
-            bm.BoardId == boardId && bm.UserId == request.UserId
+            bm.BoardId == request.BoardId && bm.UserId == request.UserId
         );
         if (existingMember != null)
         {
@@ -38,7 +38,7 @@ public class BoardMemberService(TaskFlowDbContext dbContext) : IBoardMemberServi
 
         var boardMember = new BoardMember
         {
-            BoardId = boardId,
+            BoardId = request.BoardId,
             UserId = request.UserId,
             Role = request.Role,
         };

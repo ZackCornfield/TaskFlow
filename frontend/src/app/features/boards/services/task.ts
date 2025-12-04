@@ -1,19 +1,19 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
-import { ColumnRequest, MoveTaskRequest, Task } from '../modals/board';
+import { MoveTaskRequest, Task, TaskRequest } from '../modals/board';
 import { Observable } from 'rxjs';
 @Injectable({
   providedIn: 'root',
 })
 export class TaskService {
   private http = inject(HttpClient);
-  private readonly API_URL = 'https://localhost:5287/api/task';
+  private readonly API_URL = 'http://localhost:5287/api/task';
 
-  createTask(columnId: number, request: ColumnRequest): Observable<Task> {
+  createTask(columnId: number, request: TaskRequest): Observable<Task> {
     return this.http.post<Task>(`${this.API_URL}/${columnId}`, request);
   }
 
-  updateTask(id: number, request: ColumnRequest): Observable<Task> {
+  updateTask(id: number, request: TaskRequest): Observable<Task> {
     return this.http.put<Task>(`${this.API_URL}/${id}`, request);
   }
 
@@ -22,6 +22,6 @@ export class TaskService {
   }
 
   moveTask(id: number, request: MoveTaskRequest): Observable<Task> {
-    return this.http.put<Task>(`${this.API_URL}/${id}/move`, request);
+    return this.http.patch<Task>(`${this.API_URL}/${id}/move`, request);
   }
 }

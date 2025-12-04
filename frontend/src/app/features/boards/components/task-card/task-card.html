@@ -1,6 +1,19 @@
-<div class="task-card" (click)="taskClick.emit()">
+<div
+  class="task-card"
+  [class.completed]="task()?.isCompleted"
+  (click)="taskClick.emit()"
+>
   <div class="task-header">
-    <h1 class="task-title">{{ task()?.title }}</h1>
+    <div class="checkbox-wrapper">
+      <input
+        type="checkbox"
+        class="task-checkbox"
+        [checked]="task()?.isCompleted"
+        (click)="onToggleComplete($event)"
+        title="Mark as complete"
+      />
+      <h1 class="task-title">{{ task()?.title }}</h1>
+    </div>
     <button class="btn-delete" (click)="onDelete($event)" title="Delete Task">
       Delete
     </button>
@@ -25,7 +38,6 @@
   </div>
 
   <div class="task-meta">
-    <span class="meta-item created-date">Created: {{ task()?.createdAt }}</span>
     @if(task()?.dueDate) {
     <span
       class="meta-item due-date"
@@ -36,26 +48,9 @@
 
     <div class="comments-section">
       <h3>Comments</h3>
-      @let comments = task()?.comments; @if (comments && comments.length > 0) {
-      <div class="comments-list">
-        <div *ngFor="let comment of task()?.comments" class="comment">
-          <p class="comment-author">{{ comment.authorId }}</p>
-          <p class="comment-content">{{ comment.content }}</p>
-          <span class="comment-date">{{ comment.createdAt }}</span>
-        </div>
-      </div>
-      } @else {
-      <p class="no-comments">No comments yet.</p>
+      @let comments = task()?.comments; @if (comments) {
+      <p class="comment-count">{{ comments.length }} comments</p>
       }
-      <div class="add-comment">
-        <textarea
-          [(ngModel)]="newComment"
-          placeholder="Add a comment..."
-        ></textarea>
-        <button (click)="onAddComment()" [disabled]="!newComment.trim()">
-          Add Comment
-        </button>
-      </div>
     </div>
   </div>
 </div>
