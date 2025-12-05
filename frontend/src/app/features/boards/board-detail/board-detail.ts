@@ -56,6 +56,7 @@ export class BoardDetail implements OnInit {
   newColumnTitle = '';
   newTaskTitle = '';
   newTaskDescription = '';
+  newTaskDueDate: Date | undefined;
 
   ngOnInit(): void {
     this.loadBoardFromRoute();
@@ -138,8 +139,9 @@ export class BoardDetail implements OnInit {
       title: this.newTaskTitle.trim(),
       description: this.newTaskDescription.trim(),
       sortOrder: column.tasks.length,
+      dueDate: this.newTaskDueDate ? new Date(this.newTaskDueDate) : undefined, // Ensure dueDate remains a Date object
       createdById: user.id,
-      createdAt: new Date(),
+      createdAt: new Date(), // Ensure createdAt remains a Date object
       isCompleted: false,
     };
   }
