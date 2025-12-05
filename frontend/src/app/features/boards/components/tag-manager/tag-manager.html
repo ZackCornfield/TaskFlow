@@ -1,0 +1,87 @@
+<div class="tag-manager">
+  <div class="header">
+    <h2>Tag Manager</h2>
+    <button class="btn-primary" (click)="openAddTagModal()">+ Add Tag</button>
+  </div>
+
+  <div class="tags-grid">
+    @for (tag of tags(); track tag.id) {
+    <div class="tag-item">
+      <div class="tag-preview" [style.background-color]="tag.color"></div>
+      <span class="tag-name">{{ tag.name }}</span>
+      <button class="btn-delete" (click)="deleteTag(tag.id)" title="Delete Tag">
+        ✕
+      </button>
+    </div>
+    } @if (tags().length === 0) {
+    <div class="empty-state">
+      <p>No tags created yet</p>
+      <p class="hint">Create tags to categorize your tasks</p>
+    </div>
+    }
+  </div>
+
+  <!-- Add Tag Modal -->
+  @if (showAddTagModal) {
+  <div class="modal-overlay" (click)="closeAddTagModal()">
+    <div class="modal" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3>Create New Tag</h3>
+        <button class="btn-close" (click)="closeAddTagModal()">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label for="tagName">Tag Name</label>
+          <input
+            id="tagName"
+            type="text"
+            [(ngModel)]="newTagName"
+            placeholder="e.g., Bug, Feature, Urgent"
+            (keyup.enter)="createTag()"
+            autofocus
+          />
+        </div>
+        <div class="form-group">
+          <label for="tagColor">Tag Color</label>
+          <div class="color-picker">
+            <input
+              id="tagColor"
+              type="color"
+              [(ngModel)]="newTagColor"
+              [value]="newTagColor"
+            />
+            <span
+              class="color-preview"
+              [style.background-color]="newTagColor"
+            ></span>
+            <span class="color-value">{{ newTagColor }}</span>
+          </div>
+          <div class="color-presets">
+            @for (color of colorPresets; track color) {
+            <button
+              class="color-preset"
+              [style.background-color]="color"
+              [class.active]="newTagColor === color"
+              (click)="newTagColor = color"
+              [title]="color"
+            ></button>
+            }
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-secondary" (click)="closeAddTagModal()">
+          Cancel
+        </button>
+        <button
+          class="btn-primary"
+          (click)="createTag()"
+          [disabled]="!newTagName.trim()"
+        >
+          Create Tag
+        </button>
+      </div>
+    </div>
+  </div>
+  }
+</div>

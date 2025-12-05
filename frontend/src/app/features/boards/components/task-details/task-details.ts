@@ -1,8 +1,17 @@
-import { Component, inject, input, output } from '@angular/core';
-import { Task } from '../../modals/board';
+import {
+  Component,
+  inject,
+  input,
+  OnInit,
+  output,
+  signal,
+} from '@angular/core';
+import { Tag, Task } from '../../modals/board';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { DateService } from '../../services/date';
+import { TagService } from '../../services/tag';
+import { ErrorService } from '../../../../core/services/error';
 
 @Component({
   selector: 'app-task-details',
@@ -10,15 +19,56 @@ import { DateService } from '../../services/date';
   templateUrl: './task-details.html',
   styleUrl: './task-details.css',
 })
-export class TaskDetails {
+export class TaskDetails implements OnInit {
   task = input<Task | null>(null);
   taskClick = output<void>();
   deleteTask = output<void>();
   addComment = output<string>();
   toggleComplete = output<void>();
+  addTag = output<{ taskId: number; tagId: number }>();
+  removeTag = output<{ taskId: number; tagId: number }>();
+
   private dateService = inject(DateService);
+  private tagService = inject(TagService);
+  private errorService = inject(ErrorService);
 
   newComment: string = '';
+  availableTags = signal<Tag[]>([]);
+  showTagSelector = false;
+  selectedTagIds = signal<number[]>([]);
+
+  ngOnInit(): void {
+    this.loadAvailableTags();
+  }
+
+  private loadAvailableTags(): void {
+    this.tagService.getTags().subscribe({
+      next: (tags) => this.availableTags.set(tags),
+      error: () => this.errorService.showError('Failed to load tags'),
+    });
+  }
+
+  onAddTag(tagId: number): void {
+    const task = this.task();
+    if (!task) return;
+
+    this.addTag.emit({ taskId: task.id, tagId });
+    this.showTagSelector = false;
+  }
+
+  onRemoveTag(tagId: number, event: Event): void {
+    event.stopPropagation();
+    const task = this.task();
+    if (!task) return;
+
+    this.removeTag.emit({ taskId: task.id, tagId });
+  }
+
+  isTagSelected(tagId: number): boolean {
+    const task = this.task();
+    if (!task) return false;
+    return task.tags.some((tag) => tag.id === tagId);
+  }
 
   onDelete(event: Event) {
     event.stopPropagation();

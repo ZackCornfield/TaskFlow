@@ -58,6 +58,60 @@
       </div>
       }
 
+      <!-- Tags Management Section -->
+      <div class="tags-management">
+        <div class="tags-section-header">
+          <h3>Tags</h3>
+          <button
+            class="btn-add-tag"
+            (click)="showTagSelector = !showTagSelector"
+            (click)="$event.stopPropagation()"
+          >
+            + Add Tag
+          </button>
+        </div>
+
+        @if (showTagSelector) {
+        <div class="tag-selector">
+          @for (tag of availableTags(); track tag.id) {
+          <div
+            class="tag-option"
+            [class.selected]="isTagSelected(tag.id)"
+            (click)="onAddTag(tag.id)"
+          >
+            <span class="tag-color" [style.background-color]="tag.color"></span>
+            <span class="tag-name">{{ tag.name }}</span>
+            @if (isTagSelected(tag.id)) {
+            <span class="tag-check">✓</span>
+            }
+          </div>
+          } @if (availableTags().length === 0) {
+          <p class="no-tags-hint">No tags available. Create tags first.</p>
+          }
+        </div>
+        }
+
+        <!-- Current Tags -->
+        @if (tags && tags.length > 0) {
+        <div class="tags">
+          @for (tag of tags; track tag.id) {
+          <span class="tag" [style.background-color]="tag.color">
+            {{ tag.name }}
+            <button
+              class="tag-remove"
+              (click)="onRemoveTag(tag.id, $event)"
+              title="Remove tag"
+            >
+              ×
+            </button>
+          </span>
+          }
+        </div>
+        } @else {
+        <p class="no-tags">No tags added to this task</p>
+        }
+      </div>
+
       <!-- Comments Section -->
       <div class="comments-section">
         <h3>Comments</h3>

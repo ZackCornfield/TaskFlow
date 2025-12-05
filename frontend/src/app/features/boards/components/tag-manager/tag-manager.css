@@ -1,0 +1,156 @@
+.tag-manager {
+  padding: 2rem;
+  background: white;
+  border-radius: 0.75rem;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+}
+
+.header h2 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #111827;
+  margin: 0;
+}
+
+.btn-primary {
+  padding: 0.5rem 1rem;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.btn-primary:hover {
+  opacity: 0.9;
+}
+
+.tags-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 1rem;
+}
+
+.tag-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem;
+  background: #f9fafb;
+  border-radius: 0.5rem;
+  border: 1px solid #e5e7eb;
+}
+
+.tag-preview {
+  width: 20px;
+  height: 20px;
+  border-radius: 0.25rem;
+  flex-shrink: 0;
+}
+
+.tag-name {
+  flex: 1;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #374151;
+}
+
+.btn-delete {
+  background: none;
+  border: none;
+  color: #9ca3af;
+  font-size: 1rem;
+  cursor: pointer;
+  padding: 0.25rem;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0.375rem;
+  transition: all 0.2s;
+}
+
+.btn-delete:hover {
+  background: #fee2e2;
+  color: #ef4444;
+}
+
+.empty-state {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 3rem 1rem;
+  color: #9ca3af;
+}
+
+.empty-state p {
+  margin: 0.5rem 0;
+}
+
+.hint {
+  font-size: 0.875rem;
+}
+
+.color-picker {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.color-picker input[type="color"] {
+  width: 60px;
+  height: 40px;
+  padding: 0;
+  border: none;
+  border-radius: 0.25rem;
+  cursor: pointer;
+}
+
+.color-preview {
+  width: 40px;
+  height: 40px;
+  border-radius: 0.25rem;
+  border: 1px solid #d1d5db;
+}
+
+.color-value {
+  font-family: monospace;
+  font-size: 0.875rem;
+  color: #6b7280;
+}
+
+.color-presets {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.color-preset {
+  width: 30px;
+  height: 30px;
+  border-radius: 0.25rem;
+  border: 2px solid transparent;
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+
+.color-preset:hover {
+  transform: scale(1.1);
+}
+
+.color-preset.active {
+  border-color: #111827;
+  transform: scale(1.1);
+}

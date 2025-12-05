@@ -13,6 +13,28 @@ namespace TaskFlowApi.Controllers
     [ApiController]
     public class TagController(TaskFlowDbContext dbContext, ITagService tagService) : ControllerBase
     {
+        [HttpGet]
+        [Authorize]
+        public async Task<IActionResult> GetAllTags()
+        {
+            try
+            {
+                var tags = await tagService.GetAllTagsAsync();
+                if (tags == null || tags.Count == 0)
+                {
+                    return NotFound("No tags found.");
+                }
+                return Ok(tags);
+            }
+            catch (Exception)
+            {
+                return StatusCode(
+                    StatusCodes.Status500InternalServerError,
+                    "An error occurred while retrieving tags."
+                );
+            }
+        }
+
         // Create and Delete Tags
         [HttpPost]
         [Authorize]
@@ -58,8 +80,8 @@ namespace TaskFlowApi.Controllers
         {
             try
             {
-                await tagService.AddTagsToTaskAsync(taskId, tagIds);
-                return NoContent();
+                var tags = await tagService.AddTagsToTaskAsync(taskId, tagIds);
+                return Ok(tags);
             }
             catch (KeyNotFoundException ex)
             {

@@ -153,6 +153,8 @@
     (deleteTask)="deleteTask(selectedTask()?.id!, selectedColumn()!)"
     (addComment)="addCommentToTask(selectedTask()?.id!, $event)"
     (toggleComplete)="toggleTaskCompletion(selectedTask()!, selectedColumn()!)"
+    (addTag)="addTagToTask($event.taskId, $event.tagId)"
+    (removeTag)="removeTagFromTask($event.taskId, $event.tagId)"
   ></app-task-details>
   }
 </div>

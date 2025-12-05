@@ -8,23 +8,32 @@ namespace TaskFlowApi.Services;
 
 public interface ITagService
 {
+    public Task<List<TagDto>> GetAllTagsAsync();
     public Task<TagDto> CreateTagAsync(TagRequestDto request);
-
     public Task DeleteTagAsync(int tagId);
-
-    public Task AddTagToTaskAsync(int taskId, int tagId);
-
+    public Task<TagDto> AddTagToTaskAsync(int taskId, int tagId);
     public Task RemoveTagFromTaskAsync(int taskId, int tagId);
-
     public Task<List<TagDto>> GetTagsForTaskAsync(int taskId);
-
-    public Task AddTagsToTaskAsync(int taskId, List<int> tagIds);
-
+    public Task<List<TagDto>> AddTagsToTaskAsync(int taskId, List<int> tagIds);
     public Task RemoveTagsFromTaskAsync(int taskId, List<int> tagIds);
 }
 
 public class TagService(TaskFlowDbContext dbContext) : ITagService
 {
+    public async Task<List<TagDto>> GetAllTagsAsync()
+    {
+        var tags = await dbContext
+            .Tags.AsNoTracking()
+            .Select(tag => new TagDto
+            {
+                Id = tag.Id,
+                Name = tag.Name,
+                Color = tag.Color,
+            })
+            .ToListAsync();
+        return tags;
+    }
+
     public async Task<TagDto> CreateTagAsync(TagRequestDto request)
     {
         var tag = new Tag { Name = request.Name, Color = request.Color };
@@ -54,7 +63,7 @@ public class TagService(TaskFlowDbContext dbContext) : ITagService
         return;
     }
 
-    public async Task AddTagToTaskAsync(int taskId, int tagId)
+    public async Task<TagDto> AddTagToTaskAsync(int taskId, int tagId)
     {
         var task = await dbContext
             .Tasks.Include(t => t.Tags)
@@ -74,7 +83,12 @@ public class TagService(TaskFlowDbContext dbContext) : ITagService
         task.Tags.Add(tag);
         await dbContext.SaveChangesAsync();
 
-        return;
+        return new TagDto
+        {
+            Id = tag.Id,
+            Name = tag.Name,
+            Color = tag.Color,
+        };
     }
 
     public async Task RemoveTagFromTaskAsync(int taskId, int tagId)
@@ -121,7 +135,7 @@ public class TagService(TaskFlowDbContext dbContext) : ITagService
             .ToList();
     }
 
-    public async Task AddTagsToTaskAsync(int taskId, List<int> tagIds)
+    public async Task<List<TagDto>> AddTagsToTaskAsync(int taskId, List<int> tagIds)
     {
         var task = await dbContext
             .Tasks.Include(t => t.Tags)
@@ -152,7 +166,14 @@ public class TagService(TaskFlowDbContext dbContext) : ITagService
 
         await dbContext.SaveChangesAsync();
 
-        return;
+        return task
+            .Tags.Select(tag => new TagDto
+            {
+                Id = tag.Id,
+                Name = tag.Name,
+                Color = tag.Color,
+            })
+            .ToList();
     }
 
     public async Task RemoveTagsFromTaskAsync(int taskId, List<int> tagIds)

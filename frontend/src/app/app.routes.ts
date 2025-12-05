@@ -1,6 +1,7 @@
 import { Routes } from '@angular/router';
 import { authGuard } from './core/guards/auth-guard';
 import { guestGuard } from './core/guards/guest-guard';
+import { TagManager } from './features/boards/components/tag-manager/tag-manager';
 
 export const routes: Routes = [
   {
@@ -35,6 +36,11 @@ export const routes: Routes = [
       import('./features/boards/board-detail/board-detail').then(
         (m) => m.BoardDetail
       ),
+  },
+  {
+    path: 'tags',
+    component: TagManager,
+    canActivate: [authGuard],
   },
   {
     path: '**',

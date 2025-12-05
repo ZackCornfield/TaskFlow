@@ -10,6 +10,7 @@ import {
   Column,
   ColumnRequest,
   CommentRequest,
+  Tag,
   Task,
   TaskRequest,
 } from '../modals/board';
@@ -24,6 +25,7 @@ import { FormsModule } from '@angular/forms';
 import { TaskCard } from '../components/task-card/task-card';
 import { TaskDetails } from '../components/task-details/task-details';
 import { CommentService } from '../services/comment';
+import { TagService } from '../services/tag';
 
 @Component({
   selector: 'app-board-detail',
@@ -32,25 +34,36 @@ import { CommentService } from '../services/comment';
   styleUrl: './board-detail.css',
 })
 export class BoardDetail implements OnInit {
-  private route = inject(ActivatedRoute);
-  private router = inject(Router);
-  private boardService = inject(BoardService);
-  private columnService = inject(ColumnService);
-  private taskService = inject(TaskService);
-  private commentService = inject(CommentService);
-  authService = inject(AuthService);
-  private errorService = inject(ErrorService);
+  // Services
+  private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
+  private readonly boardService = inject(BoardService);
+  private readonly columnService = inject(ColumnService);
+  private readonly taskService = inject(TaskService);
+  private readonly commentService = inject(CommentService);
+  private readonly tagService = inject(TagService);
+  private readonly errorService = inject(ErrorService);
+  readonly authService = inject(AuthService);
 
-  board = signal<Board | null>(null);
+  // State signals
+  readonly board = signal<Board | null>(null);
+  readonly selectedColumn = signal<Column | null>(null);
+  readonly selectedTask = signal<Task | null>(null);
+
+  // UI state
   showAddColumnModal = false;
   showAddTaskModalFlag = false;
   newColumnTitle = '';
   newTaskTitle = '';
   newTaskDescription = '';
-  selectedColumn = signal<Column | null>(null);
-  selectedTask = signal<Task | null>(null);
 
   ngOnInit(): void {
+    this.loadBoardFromRoute();
+  }
+
+  // ========== Board Management ==========
+
+  private loadBoardFromRoute(): void {
     const boardId = this.route.snapshot.paramMap.get('id');
     if (boardId) {
       this.loadBoard(Number(boardId));
@@ -67,121 +80,104 @@ export class BoardDetail implements OnInit {
     });
   }
 
-  addColumn(): void {
-    if (!this.newColumnTitle.trim() || !this.board()) return;
+  goBack(): void {
+    this.router.navigate(['/boards']);
+  }
 
-    const sortOrder = this.board()!.columns.length;
+  // ========== Column Operations ==========
+
+  addColumn(): void {
+    const currentBoard = this.board();
+    if (!this.newColumnTitle.trim() || !currentBoard) return;
 
     const columnRequest: ColumnRequest = {
-      boardId: this.board()!.id,
+      boardId: currentBoard.id,
       title: this.newColumnTitle.trim(),
-      sortOrder: sortOrder,
+      sortOrder: currentBoard.columns.length,
     };
-    this.columnService.createColumn(this.board()!.id, columnRequest).subscribe({
-      next: (column) => {
-        this.board.update((b) => {
-          if (!b) return b;
-          return { ...b, columns: [...b.columns, column] };
-        });
-        this.errorService.showSuccess('Column added successfully');
-        this.closeAddColumnModal();
-      },
-      error: () => {
-        this.errorService.showError('Failed to add column');
-      },
+
+    this.columnService.createColumn(currentBoard.id, columnRequest).subscribe({
+      next: (column) => this.handleColumnAdded(column),
+      error: () => this.handleError('Failed to add column'),
     });
   }
 
+  private handleColumnAdded(column: Column): void {
+    this.board.update((board) => {
+      if (!board) return board;
+      return { ...board, columns: [...board.columns, column] };
+    });
+
+    this.errorService.showSuccess('Column added successfully');
+    this.closeAddColumnModal();
+  }
+
+  // ========== Task Operations ==========
+
   addTask(): void {
-    if (!this.newTaskTitle.trim() && !this.selectedColumn() && !this.board())
-      return;
-
-    const column = this.selectedColumn()!;
-    const sortOrder = column.tasks.length;
+    const column = this.selectedColumn();
     const currentUser = this.authService.currentUser();
-    if (!currentUser) return;
 
-    const taskRequest: TaskRequest = {
+    if (!this.validateTaskInput(column, currentUser)) return;
+
+    const taskRequest = this.createTaskRequest(column!, currentUser!);
+
+    this.taskService.createTask(column!.id, taskRequest).subscribe({
+      next: (task) => this.handleTaskAdded(task, column!),
+      error: () => this.handleError('Failed to add task'),
+    });
+  }
+
+  private validateTaskInput(column: Column | null, user: any): boolean {
+    return Boolean(this.newTaskTitle.trim() && column && this.board() && user);
+  }
+
+  private createTaskRequest(column: Column, user: any): TaskRequest {
+    return {
       columnId: column.id,
       title: this.newTaskTitle.trim(),
       description: this.newTaskDescription.trim(),
-      sortOrder: sortOrder,
-      createdById: currentUser.id,
+      sortOrder: column.tasks.length,
+      createdById: user.id,
       createdAt: new Date(),
-      // assignedToId
       isCompleted: false,
     };
+  }
 
-    this.taskService.createTask(column.id, taskRequest).subscribe({
-      next: (task) => {
-        this.board.update((b) => {
-          if (!b) return b;
-          const updatedColumns = b.columns.map((col) => {
-            if (col.id == column.id) {
-              return { ...col, tasks: [...col.tasks, task] };
-            }
-            return col;
-          });
-          return { ...b, columns: updatedColumns };
-        });
-        this.errorService.showSuccess('Task added successfully');
-        this.closeAddTaskModal();
-      },
-      error: () => {
-        this.errorService.showError('Failed to add task');
-      },
+  private handleTaskAdded(task: Task, column: Column): void {
+    this.board.update((board) => {
+      if (!board) return board;
+
+      const updatedColumns = board.columns.map((col) => {
+        if (col.id === column.id) {
+          return { ...col, tasks: [...col.tasks, task] };
+        }
+        return col;
+      });
+
+      return { ...board, columns: updatedColumns };
     });
-  }
 
-  onTaskDrop(event: CdkDragDrop<Task[]>, targetColumn: Column): void {
-    const task = event.previousContainer.data[event.previousIndex];
-
-    if (event.previousContainer === event.container) {
-      // Same column - just reorder
-      moveItemInArray(
-        event.container.data,
-        event.previousIndex,
-        event.currentIndex
-      );
-      this.updateTaskOrder(task, targetColumn.id, event.currentIndex);
-    } else {
-      // Different column - move task
-      transferArrayItem(
-        event.previousContainer.data,
-        event.container.data,
-        event.previousIndex,
-        event.currentIndex
-      );
-      this.moveTask(task, targetColumn.id, event.currentIndex);
-    }
-  }
-
-  moveTask(task: Task, newColumnId: number, sortOrder: number): void {
-    this.taskService
-      .moveTask(task.id, { targetColumnId: newColumnId, sortOrder: sortOrder })
-      .subscribe({
-        error: () => {
-          this.errorService.showError('Failed to move task');
-          this.loadBoard(this.board()!.id);
-        },
-      });
-  }
-
-  updateTaskOrder(task: Task, columnId: number, sortOrder: number): void {
-    this.taskService
-      .moveTask(task.id, { targetColumnId: columnId, sortOrder })
-      .subscribe({
-        error: () => {
-          this.errorService.showError('Failed to update task order');
-          this.loadBoard(this.board()!.id);
-        },
-      });
+    this.errorService.showSuccess('Task added successfully');
+    this.closeAddTaskModal();
   }
 
   toggleTaskCompletion(task: Task, column: Column): void {
     if (!this.board()) return;
 
     const updatedTask: TaskRequest = {
+      ...this.createTaskUpdatePayload(task),
+      isCompleted: !task.isCompleted,
+    };
+
+    this.taskService.updateTask(task.id, updatedTask).subscribe({
+      next: (updated) => this.updateTaskInState(updated, column),
+      error: () => this.handleError('Failed to update task completion status'),
+    });
+  }
+
+  private createTaskUpdatePayload(task: Task): TaskRequest {
+    return {
       columnId: task.columnId,
       title: task.title,
       description: task.description || '',
@@ -190,131 +186,255 @@ export class BoardDetail implements OnInit {
       createdAt: task.createdAt,
       createdById: task.createdById,
       assignedToId: task.assignedToId,
-      isCompleted: !task.isCompleted,
+      isCompleted: task.isCompleted,
     };
-
-    if (!column) {
-      this.errorService.showError('Column not found');
-      return;
-    }
-
-    const taskIndex = column.tasks.findIndex((t) => t.id === task.id);
-    if (taskIndex === -1) {
-      this.errorService.showError('Task not found');
-      return;
-    }
-
-    this.taskService.updateTask(task.id, updatedTask).subscribe({
-      next: (updated) => {
-        this.board.update((b) => {
-          if (!b) return b;
-          const updatedColumns = b.columns.map((col) => {
-            if (col.id === column.id) {
-              const updatedTasks = col.tasks.map((t) => {
-                if (t.id === task.id) {
-                  return updated;
-                }
-                return t;
-              });
-              return { ...col, tasks: updatedTasks };
-            }
-            return col;
-          });
-          return { ...b, columns: updatedColumns };
-        });
-
-        // Also update selectedTask if it's the same task
-        if (this.selectedTask()?.id === task.id) {
-          this.selectedTask.set(updated);
-        }
-      },
-      error: () => {
-        this.errorService.showError('Failed to update task completion status');
-      },
-    });
   }
 
   deleteTask(taskId: number, column: Column): void {
     if (!confirm('Are you sure you want to delete this task?')) return;
 
     this.taskService.deleteTask(taskId).subscribe({
-      next: () => {
-        this.board.update((b) => {
-          if (!b) return b;
-
-          const updatedColumns = b.columns.map((col) => {
-            if (col.id === column.id) {
-              return {
-                ...col,
-                tasks: col.tasks.filter((t) => t.id !== taskId),
-              };
-            }
-            return col;
-          });
-          return { ...b, columns: updatedColumns };
-        });
-        this.errorService.showSuccess('Task deleted successfully');
-        this.closeTaskDetail();
-      },
-      error: () => {
-        this.errorService.showError('Failed to delete task');
-      },
+      next: () => this.handleTaskDeleted(taskId, column),
+      error: () => this.handleError('Failed to delete task'),
     });
   }
 
+  private handleTaskDeleted(taskId: number, column: Column): void {
+    this.board.update((board) => {
+      if (!board) return board;
+
+      const updatedColumns = board.columns.map((col) => {
+        if (col.id === column.id) {
+          return {
+            ...col,
+            tasks: col.tasks.filter((t) => t.id !== taskId),
+          };
+        }
+        return col;
+      });
+
+      return { ...board, columns: updatedColumns };
+    });
+
+    this.errorService.showSuccess('Task deleted successfully');
+    this.closeTaskDetail();
+  }
+
+  // ========== Drag & Drop Operations ==========
+
+  onTaskDrop(event: CdkDragDrop<Task[]>, targetColumn: Column): void {
+    const task = event.previousContainer.data[event.previousIndex];
+
+    if (event.previousContainer === event.container) {
+      this.handleTaskReorder(event, targetColumn, task);
+    } else {
+      this.handleTaskMove(event, targetColumn, task);
+    }
+  }
+
+  private handleTaskReorder(
+    event: CdkDragDrop<Task[]>,
+    targetColumn: Column,
+    task: Task
+  ): void {
+    moveItemInArray(
+      event.container.data,
+      event.previousIndex,
+      event.currentIndex
+    );
+    this.updateTaskOrder(task, targetColumn.id, event.currentIndex);
+  }
+
+  private handleTaskMove(
+    event: CdkDragDrop<Task[]>,
+    targetColumn: Column,
+    task: Task
+  ): void {
+    transferArrayItem(
+      event.previousContainer.data,
+      event.container.data,
+      event.previousIndex,
+      event.currentIndex
+    );
+    this.moveTask(task, targetColumn.id, event.currentIndex);
+  }
+
+  private moveTask(task: Task, newColumnId: number, sortOrder: number): void {
+    this.taskService
+      .moveTask(task.id, { targetColumnId: newColumnId, sortOrder })
+      .subscribe({
+        error: () => this.handleTaskMoveError(),
+      });
+  }
+
+  private updateTaskOrder(
+    task: Task,
+    columnId: number,
+    sortOrder: number
+  ): void {
+    this.taskService
+      .moveTask(task.id, { targetColumnId: columnId, sortOrder })
+      .subscribe({
+        error: () => this.handleTaskMoveError(),
+      });
+  }
+
+  private handleTaskMoveError(): void {
+    this.errorService.showError('Failed to move task');
+    const currentBoard = this.board();
+    if (currentBoard) {
+      this.loadBoard(currentBoard.id);
+    }
+  }
+
+  // ========== Comment Operations ==========
+
   addCommentToTask(taskId: number, comment: string): void {
-    if (!this.board()) return;
+    const currentBoard = this.board();
+    if (!currentBoard) return;
 
-    const task = this.board()!
-      .columns.flatMap((column) => column.tasks)
-      .find((task) => task.id === taskId);
-
+    const task = this.findTaskById(taskId, currentBoard);
     if (!task) {
       this.errorService.showError('Task not found');
       return;
     }
 
+    const currentUser = this.authService.currentUser();
     const newComment: CommentRequest = {
       taskId,
       content: comment,
-      authorId: this.authService.currentUser()?.id || '',
-      authorName: this.authService.currentUser()?.displayName || '',
+      authorId: currentUser?.id || '',
+      authorName: currentUser?.displayName || '',
       createdAt: new Date(),
     };
 
     this.commentService.createComment(taskId, newComment).subscribe({
-      next: (comment) => {
-        this.board.update((b) => {
-          if (!b) return b;
-          const updatedColumns = b.columns.map((col) => {
-            const updatedTasks = col.tasks.map((t) => {
-              if (t.id === taskId) {
-                return { ...t, comments: [...t.comments, comment] };
-              }
-              return t;
-            });
-            return { ...col, tasks: updatedTasks };
-          });
-          return { ...b, columns: updatedColumns };
-        });
-
-        // ADD THIS: Update selectedTask if it's the same task
-        if (this.selectedTask()?.id === taskId) {
-          const updatedTask = this.board()!
-            .columns.flatMap((column) => column.tasks)
-            .find((task) => task.id === taskId);
-          if (updatedTask) {
-            this.selectedTask.set(updatedTask);
-          }
-        }
-
-        this.errorService.showSuccess('Comment added successfully');
-      },
-      error: () => {
-        this.errorService.showError('Failed to add comment');
-      },
+      next: (createdComment) => this.handleCommentAdded(taskId, createdComment),
+      error: () => this.handleError('Failed to add comment'),
     });
   }
+
+  private findTaskById(taskId: number, board: Board): Task | undefined {
+    return board.columns
+      .flatMap((column) => column.tasks)
+      .find((task) => task.id === taskId);
+  }
+
+  private handleCommentAdded(taskId: number, comment: any): void {
+    this.updateTaskInBoard(taskId, (task) => ({
+      ...task,
+      comments: [...task.comments, comment],
+    }));
+
+    this.updateSelectedTaskIfNeeded(taskId);
+    this.errorService.showSuccess('Comment added successfully');
+  }
+
+  // ========== Tag Operations ==========
+
+  addTagToTask(taskId: number, tagId: number): void {
+    this.tagService.addTagsToTask(taskId, [tagId]).subscribe({
+      next: (tags) => this.handleTagOperationSuccess(taskId, tags),
+      error: () => this.handleError('Failed to add tag to task'),
+    });
+  }
+
+  removeTagFromTask(taskId: number, tagId: number): void {
+    this.tagService.removeTagsFromTask(taskId, [tagId]).subscribe({
+      next: () => {
+        this.updateTaskTags(taskId, tagId, false);
+        this.errorService.showSuccess('Tag removed successfully');
+      },
+      error: () => this.handleError('Failed to remove tag'),
+    });
+  }
+
+  private handleTagOperationSuccess(taskId: number, tags: Tag[]): void {
+    this.updateTaskInBoard(taskId, () => ({ tags }));
+    this.updateSelectedTaskIfNeeded(taskId);
+    this.errorService.showSuccess('Tag added to task');
+  }
+
+  private updateTaskTags(taskId: number, tagId: number, add: boolean): void {
+    this.updateTaskInBoard(taskId, (task) => {
+      if (add) {
+        const tagToAdd = this.getTagById(tagId);
+        return tagToAdd ? { ...task, tags: [...task.tags, tagToAdd] } : task;
+      } else {
+        return {
+          ...task,
+          tags: task.tags.filter((tag) => tag.id !== tagId),
+        };
+      }
+    });
+  }
+
+  private getTagById(tagId: number): Tag | null {
+    const task = this.selectedTask();
+    if (task) {
+      const existingTag = task.tags.find((t) => t.id === tagId);
+      if (existingTag) return existingTag;
+    }
+
+    // Placeholder - in production, maintain a list of all available tags
+    return { id: tagId, name: `Tag ${tagId}`, color: '#667eea' };
+  }
+
+  // ========== State Update Helpers ==========
+
+  private updateTaskInBoard(
+    taskId: number,
+    updateFn: (task: Task) => Partial<Task>
+  ): void {
+    this.board.update((board) => {
+      if (!board) return board;
+
+      const updatedColumns = board.columns.map((column) => {
+        const updatedTasks = column.tasks.map((task) => {
+          if (task.id === taskId) {
+            return { ...task, ...updateFn(task) };
+          }
+          return task;
+        });
+        return { ...column, tasks: updatedTasks };
+      });
+
+      return { ...board, columns: updatedColumns };
+    });
+  }
+
+  private updateTaskInState(updatedTask: Task, column: Column): void {
+    this.board.update((board) => {
+      if (!board) return board;
+
+      const updatedColumns = board.columns.map((col) => {
+        if (col.id === column.id) {
+          const updatedTasks = col.tasks.map((t) =>
+            t.id === updatedTask.id ? updatedTask : t
+          );
+          return { ...col, tasks: updatedTasks };
+        }
+        return col;
+      });
+
+      return { ...board, columns: updatedColumns };
+    });
+
+    if (this.selectedTask()?.id === updatedTask.id) {
+      this.selectedTask.set(updatedTask);
+    }
+  }
+
+  private updateSelectedTaskIfNeeded(taskId: number): void {
+    if (this.selectedTask()?.id === taskId) {
+      const updatedTask = this.findTaskById(taskId, this.board()!);
+      if (updatedTask) {
+        this.selectedTask.set(updatedTask);
+      }
+    }
+  }
+
+  // ========== UI State Management ==========
 
   showAddTaskModal(column: Column): void {
     this.selectedColumn.set(column);
@@ -343,8 +463,10 @@ export class BoardDetail implements OnInit {
     this.selectedColumn.set(null);
   }
 
-  goBack(): void {
-    this.router.navigate(['/boards']);
+  // ========== Utility Methods ==========
+
+  private handleError(message: string): void {
+    this.errorService.showError(message);
   }
 
   logout(): void {
