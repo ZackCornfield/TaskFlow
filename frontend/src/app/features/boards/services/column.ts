@@ -8,7 +8,7 @@ import { Observable } from 'rxjs';
 })
 export class ColumnService {
   private http = inject(HttpClient);
-  private readonly API_URL = 'https://localhost:5287/api/column';
+  private readonly API_URL = 'http://localhost:5287/api/column';
 
   createColumn(boardId: number, request: ColumnRequest): Observable<Column> {
     return this.http.post<Column>(`${this.API_URL}/${boardId}`, request);

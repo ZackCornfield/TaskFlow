@@ -29,12 +29,28 @@ public class TaskFlowDbContext(DbContextOptions<TaskFlowDbContext> options) : Db
             .HasForeignKey(c => c.BoardId)
             .OnDelete(DeleteBehavior.Cascade);
 
+        // BoardMember relationships
+        modelBuilder
+            .Entity<Board>()
+            .HasMany(b => b.Members)
+            .WithOne(bm => bm.Board)
+            .HasForeignKey(bm => bm.BoardId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        // Column relationships
+        modelBuilder
+            .Entity<Column>()
+            .HasMany(c => c.Tasks)
+            .WithOne(t => t.Column)
+            .HasForeignKey(t => t.ColumnId)
+            .OnDelete(DeleteBehavior.Cascade);
+
         // Task relationships
         modelBuilder
             .Entity<TaskItem>()
-            .HasOne(t => t.Column)
-            .WithMany(c => c.Tasks)
-            .HasForeignKey(t => t.ColumnId)
+            .HasMany(t => t.Comments)
+            .WithOne(c => c.Task)
+            .HasForeignKey(c => c.TaskId)
             .OnDelete(DeleteBehavior.Cascade);
 
         modelBuilder
