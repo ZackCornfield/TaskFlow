@@ -4,6 +4,10 @@
     <div navbar-left class="navbar-left-content">
       <button class="btn-back" (click)="goBack()">← Back</button>
       <h1 class="board-title">{{ board()?.title }}</h1>
+      <button class="btn-members" (click)="showMembersModal = true">
+        <span class="members-icon">👥</span>
+        Members
+      </button>
     </div>
   </app-navbar>
 
@@ -56,6 +60,16 @@
       </div>
     </div>
   </main>
+
+  <!-- Board Members Modal -->
+  @if (showMembersModal && board()) {
+  <app-board-member-modal
+    [boardId]="board()!.id"
+    [ownerId]="board()!.ownerId"
+    [currentUserId]="authService.currentUser()!.id"
+    (closeModal)="showMembersModal = false"
+  />
+  }
 
   <!-- Add Column Modal -->
   @if (showAddColumnModal) {

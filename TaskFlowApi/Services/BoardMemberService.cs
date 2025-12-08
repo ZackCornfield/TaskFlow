@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using TaskFlowApi.Data;
+using TaskFlowApi.Dtos.Auth;
 using TaskFlowApi.Dtos.Board;
 using TaskFlowApi.Models;
 
@@ -7,14 +8,14 @@ namespace TaskFlowApi.Services;
 
 public interface IBoardMemberService
 {
-    Task<BoardMember?> AddBoardMemberAsync(AddBoardMemberDto request);
+    Task<BoardMemberDto?> AddBoardMemberAsync(AddBoardMemberDto request);
     Task<bool> RemoveBoardMemberAsync(int boardId, Guid userId);
     Task<List<BoardMemberDto>?> GetBoardMembersAsync(int boardId);
 }
 
 public class BoardMemberService(TaskFlowDbContext dbContext) : IBoardMemberService
 {
-    public async Task<BoardMember?> AddBoardMemberAsync(AddBoardMemberDto request)
+    public async Task<BoardMemberDto?> AddBoardMemberAsync(AddBoardMemberDto request)
     {
         var board = await dbContext.Boards.FindAsync(request.BoardId);
         if (board is null)
@@ -22,14 +23,14 @@ public class BoardMemberService(TaskFlowDbContext dbContext) : IBoardMemberServi
             return null;
         }
 
-        var user = await dbContext.Users.FindAsync(request.UserId);
+        var user = await dbContext.Users.FirstOrDefaultAsync(u => u.Email == request.Email);
         if (user is null)
         {
             return null;
         }
 
         var existingMember = await dbContext.BoardMembers.FirstOrDefaultAsync(bm =>
-            bm.BoardId == request.BoardId && bm.UserId == request.UserId
+            bm.BoardId == request.BoardId && bm.UserId == user.Id
         );
         if (existingMember != null)
         {
@@ -39,14 +40,25 @@ public class BoardMemberService(TaskFlowDbContext dbContext) : IBoardMemberServi
         var boardMember = new BoardMember
         {
             BoardId = request.BoardId,
-            UserId = request.UserId,
+            UserId = user.Id,
             Role = request.Role,
         };
 
         dbContext.BoardMembers.Add(boardMember);
         await dbContext.SaveChangesAsync();
 
-        return boardMember;
+        return new BoardMemberDto
+        {
+            UserId = boardMember.UserId,
+            User = new UserDto
+            {
+                Id = user.Id,
+                DisplayName = user.DisplayName,
+                Email = user.Email,
+            },
+            BoardId = boardMember.BoardId,
+            Role = boardMember.Role,
+        };
     }
 
     public async Task<bool> RemoveBoardMemberAsync(int boardId, Guid userId)
@@ -80,8 +92,13 @@ public class BoardMemberService(TaskFlowDbContext dbContext) : IBoardMemberServi
             .Select(bm => new BoardMemberDto
             {
                 UserId = bm.UserId,
-                DisplayName = bm.User.DisplayName,
-                Email = bm.User.Email,
+                User = new UserDto
+                {
+                    Id = bm.User.Id,
+                    DisplayName = bm.User.DisplayName,
+                    Email = bm.User.Email,
+                },
+                BoardId = bm.BoardId,
                 Role = bm.Role,
             })
             .ToListAsync();

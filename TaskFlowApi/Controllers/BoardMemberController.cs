@@ -10,7 +10,7 @@ namespace TaskFlowApi.Controllers
     [ApiController]
     public class BoardMemberController(IBoardMemberService boardMemberService) : ControllerBase
     {
-        [HttpPost("{boardId}/members")]
+        [HttpPost("{boardId}")]
         [Authorize]
         public async Task<IActionResult> AddBoardMember(
             int boardId,
@@ -44,7 +44,7 @@ namespace TaskFlowApi.Controllers
             }
         }
 
-        [HttpDelete("{boardId}/members/{userId}")]
+        [HttpDelete("{boardId}/{userId}")]
         [Authorize]
         public async Task<IActionResult> RemoveBoardMember(int boardId, Guid userId)
         {
@@ -67,7 +67,7 @@ namespace TaskFlowApi.Controllers
             }
         }
 
-        [HttpGet("{boardId}/members")]
+        [HttpGet("{boardId}")]
         [Authorize]
         public async Task<IActionResult> GetBoardMembers(int boardId)
         {

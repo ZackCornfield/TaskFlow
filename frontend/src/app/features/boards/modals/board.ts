@@ -47,8 +47,12 @@ export interface Tag {
 
 export interface BoardMember {
   userId: string;
-  displayName: string;
-  email: string;
+  user: {
+    id: string;
+    displayName: string;
+    email: string;
+  };
+  boardId: number;
   role: 'admin' | 'member';
 }
 
@@ -95,6 +99,7 @@ export interface TagRequest {
 }
 
 export interface AddBoardMemberRequest {
-  userId: string;
+  email: string;
+  boardId: number;
   role: 'admin' | 'member';
 }

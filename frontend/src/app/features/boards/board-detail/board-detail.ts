@@ -27,6 +27,7 @@ import { TaskDetails } from '../components/task-details/task-details';
 import { CommentService } from '../services/comment';
 import { TagService } from '../services/tag';
 import { Navbar } from '../../../shared/components/navbar/navbar';
+import { BoardMemberModal } from '../components/board-member-modal/board-member-modal';
 
 @Component({
   selector: 'app-board-detail',
@@ -37,6 +38,7 @@ import { Navbar } from '../../../shared/components/navbar/navbar';
     TaskCard,
     TaskDetails,
     Navbar,
+    BoardMemberModal,
   ],
   templateUrl: './board-detail.html',
   styleUrl: './board-detail.css',
@@ -61,6 +63,7 @@ export class BoardDetail implements OnInit {
   // UI state
   showAddColumnModal = false;
   showAddTaskModalFlag = false;
+  showMembersModal = false;
   newColumnTitle = '';
   newTaskTitle = '';
   newTaskDescription = '';
