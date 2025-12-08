@@ -1,19 +1,11 @@
 <div class="board-container">
   <!-- Header -->
-  <header class="header">
-    <div class="header-content">
-      <div class="header-left">
-        <button class="btn-back" (click)="goBack()">← Back</button>
-        <h1 class="board-title">{{ board()?.title }}</h1>
-      </div>
-      <div class="user-menu">
-        <span class="user-name">{{
-          authService.currentUser()?.displayName
-        }}</span>
-        <button class="btn-logout" (click)="logout()">Logout</button>
-      </div>
+  <app-navbar>
+    <div navbar-left class="navbar-left-content">
+      <button class="btn-back" (click)="goBack()">← Back</button>
+      <h1 class="board-title">{{ board()?.title }}</h1>
     </div>
-  </header>
+  </app-navbar>
 
   <!-- Kanban Board -->
   <main class="board-content">

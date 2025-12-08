@@ -26,10 +26,18 @@ import { TaskCard } from '../components/task-card/task-card';
 import { TaskDetails } from '../components/task-details/task-details';
 import { CommentService } from '../services/comment';
 import { TagService } from '../services/tag';
+import { Navbar } from '../../../shared/components/navbar/navbar';
 
 @Component({
   selector: 'app-board-detail',
-  imports: [CommonModule, FormsModule, DragDropModule, TaskCard, TaskDetails],
+  imports: [
+    CommonModule,
+    FormsModule,
+    DragDropModule,
+    TaskCard,
+    TaskDetails,
+    Navbar,
+  ],
   templateUrl: './board-detail.html',
   styleUrl: './board-detail.css',
 })

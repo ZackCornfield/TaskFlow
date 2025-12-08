@@ -4,16 +4,19 @@ import { FormsModule } from '@angular/forms';
 import { TagService } from '../../services/tag';
 import { ErrorService } from '../../../../core/services/error';
 import { Tag, TagRequest } from '../../modals/board';
+import { Navbar } from '../../../../shared/components/navbar/navbar';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-tag-manager',
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, Navbar],
   templateUrl: './tag-manager.html',
   styleUrl: './tag-manager.css',
 })
 export class TagManager implements OnInit {
   private tagService = inject(TagService);
   private errorService = inject(ErrorService);
+  private router = inject(Router);
 
   tags = signal<Tag[]>([]);
   showAddTagModal = false;
@@ -37,6 +40,10 @@ export class TagManager implements OnInit {
 
   ngOnInit(): void {
     this.loadTags();
+  }
+
+  goBack(): void {
+    this.router.navigate(['/boards']);
   }
 
   private loadTags(): void {

@@ -7,10 +7,11 @@ import { Board } from '../modals/board';
 import { AuthService } from '../../../core/services/auth';
 import { ErrorService } from '../../../core/services/error';
 import { BoardRequest } from '../modals/board';
+import { Navbar } from '../../../shared/components/navbar/navbar';
 
 @Component({
   selector: 'app-board-list',
-  imports: [CommonModule, RouterLink, FormsModule],
+  imports: [CommonModule, RouterLink, FormsModule, Navbar],
   templateUrl: './board-list.html',
   styleUrl: './board-list.css',
 })
