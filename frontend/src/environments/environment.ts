@@ -1,4 +1,4 @@
 export const environment = {
-  production: true,
-  apiUrl: 'https://taskflow-1x4p.onrender.com/api',
+  production: false,
+  apiUrl: 'http://localhost:5287/api',
 };
