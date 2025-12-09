@@ -9,7 +9,7 @@ import { environment } from '../../../../environments/environment';
 })
 export class BoardService {
   private http = inject(HttpClient);
-  private readonly API_URL = environment.apiUrl + '/boards';
+  private readonly API_URL = environment.apiUrl + '/board';
 
   getBoards(): Observable<Board[]> {
     return this.http.get<Board[]>(this.API_URL);

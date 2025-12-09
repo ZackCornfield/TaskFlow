@@ -9,7 +9,7 @@ import { environment } from '../../../../environments/environment';
 })
 export class ColumnService {
   private http = inject(HttpClient);
-  private readonly API_URL = environment.apiUrl + '/columns';
+  private readonly API_URL = environment.apiUrl + '/column';
 
   createColumn(boardId: number, request: ColumnRequest): Observable<Column> {
     return this.http.post<Column>(`${this.API_URL}/${boardId}`, request);

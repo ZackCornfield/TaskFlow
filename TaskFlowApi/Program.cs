@@ -60,7 +60,7 @@ builder.Services.AddSwaggerGen(c =>
 });
 
 // 4. Configure database / Register Services
-var connString = builder.Configuration.GetConnectionString("DefaultConnection");
+var connString = builder.Configuration.GetConnectionString("Default");
 builder.Services.AddNpgsql<TaskFlowDbContext>(connString);
 
 builder.Services.AddScoped<IAuthService, AuthService>();

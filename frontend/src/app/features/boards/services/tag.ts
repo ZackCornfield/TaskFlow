@@ -8,7 +8,7 @@ import { environment } from '../../../../environments/environment';
 })
 export class TagService {
   private http = inject(HttpClient);
-  private readonly API_URL = environment.apiUrl + '/tags';
+  private readonly API_URL = environment.apiUrl + '/tag';
 
   getTags(): Observable<Tag[]> {
     return this.http.get<Tag[]>(this.API_URL);

@@ -8,7 +8,7 @@ import { environment } from '../../../../environments/environment';
 })
 export class TaskService {
   private http = inject(HttpClient);
-  private readonly API_URL = environment.apiUrl + '/tasks';
+  private readonly API_URL = environment.apiUrl + '/task';
 
   createTask(columnId: number, request: TaskRequest): Observable<Task> {
     return this.http.post<Task>(`${this.API_URL}/${columnId}`, request);
