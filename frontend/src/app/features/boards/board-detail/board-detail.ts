@@ -124,6 +124,33 @@ export class BoardDetail implements OnInit {
     this.closeAddColumnModal();
   }
 
+  deleteColumn(column: Column): void {
+    const currentBoard = this.board();
+
+    if (!currentBoard) return;
+
+    if (!confirm('Are you sure you want to delete this column?')) return;
+
+    this.columnService.deleteColumn(column.id).subscribe({
+      next: () => {
+        this.handleColumnDeleted(column);
+        this.errorService.showSuccess('Column deleted successfully');
+      },
+      error: () => this.errorService.showError('Failed to delete column'),
+    });
+  }
+
+  private handleColumnDeleted(column: Column): void {
+    this.board.update((board) => {
+      if (!board) return board;
+
+      return {
+        ...board,
+        columns: board.columns.filter((col) => col.id !== column.id),
+      };
+    });
+  }
+
   // ========== Task Operations ==========
 
   addTask(): void {

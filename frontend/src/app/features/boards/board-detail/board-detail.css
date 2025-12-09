@@ -98,6 +98,18 @@
   margin: 0;
 }
 
+.column-title-section {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.column-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
 .task-count {
   background: #9ca3af;
   color: white;
@@ -105,6 +117,20 @@
   border-radius: 1rem;
   font-size: 0.75rem;
   font-weight: 600;
+}
+
+.btn-delete-column {
+  background: none;
+  border: none;
+  color: #9ca3af;
+  font-size: 0.9rem;
+  cursor: pointer;
+  padding: 0.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0.25rem;
+  transition: all 0.2s;
 }
 
 .tasks-list {

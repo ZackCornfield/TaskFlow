@@ -18,8 +18,15 @@
       @for (column of board()?.columns; track column.id) {
       <div class="column">
         <div class="column-header">
-          <h3>{{ column.title }}</h3>
-          <span class="task-count">{{ column.tasks.length }}</span>
+          <div class="column-title-section">
+            <h3>{{ column.title }}</h3>
+          </div>
+          <div class="column-actions">
+            <span class="task-count">{{ column.tasks.length }}</span>
+            <button class="btn-delete-column" (click)="deleteColumn(column)">
+              Delete
+            </button>
+          </div>
         </div>
 
         <!-- Tasks Drop Zone -->
