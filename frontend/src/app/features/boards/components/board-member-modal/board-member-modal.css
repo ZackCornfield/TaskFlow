@@ -257,3 +257,29 @@
 .btn-secondary:hover {
   background: #f9fafb;
 }
+
+@media (max-width: 768px) {
+  .modal {
+    width: 95%;
+    padding: 1rem;
+  }
+
+  .add-member-form {
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .email-input,
+  .role-select,
+  .btn-add {
+    width: 100%;
+  }
+
+  .btn-add {
+    text-align: center;
+  }
+
+  .members-list {
+    gap: 0.5rem;
+  }
+}

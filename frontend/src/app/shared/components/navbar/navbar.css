@@ -27,8 +27,19 @@
 }
 
 .user-name {
-  color: #374151;
-  font-weight: 500;
+  color: #1f2937; /* Darker shade for better contrast */
+  font-weight: 600;
+  font-size: 1rem; /* Slightly larger font size */
+  background: #f3f4f6; /* Light background for emphasis */
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+  transition: background 0.2s, box-shadow 0.2s;
+}
+
+.user-name:hover {
+  background: #e5e7eb; /* Slightly darker on hover */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
 .btn-logout {
@@ -62,4 +73,48 @@
   background: #f3f4f6;
   color: #111827;
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+/* Add responsive styling for the navbar */
+@media (max-width: 768px) {
+  .header {
+    padding: 0.5rem 0;
+  }
+
+  .header-content {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+    padding: 0 1rem;
+  }
+
+  .header-left {
+    justify-content: center;
+    width: 100%;
+  }
+
+  .nav-link {
+    position: static;
+    transform: none;
+    width: 100%;
+    text-align: center;
+    margin: 0.5rem 0;
+  }
+
+  .user-menu {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+    width: 100%;
+  }
+
+  .user-name {
+    width: 100%;
+    text-align: center;
+  }
+
+  .btn-logout {
+    width: 100%;
+    text-align: center;
+  }
 }
