@@ -1,4 +1,4 @@
 export const environment = {
   production: true,
-  apiUrl: 'https://blogapp-backend-i9gc.onrender.com/api',
+  apiUrl: 'https://taskflow-1x4p.onrender.com/api',
 };
