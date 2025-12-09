@@ -3,6 +3,7 @@ import { Injectable, signal } from '@angular/core';
 import { StorageService } from './storage';
 import { Router } from '@angular/router';
 import { Observable, tap } from 'rxjs';
+import { environment } from '../../../environments/environment';
 
 export interface LoginRequest {
   email: string;
@@ -35,8 +36,7 @@ export class AuthService {
     this.loadUserFromStorage();
   }
 
-  private readonly API_URL = 'http://localhost:5287/api/auth';
-
+  private readonly API_URL = environment.apiUrl + '/auth';
   currentUser = signal<UserDto | null>(null);
   isAuthenticated = signal<boolean>(false);
 
