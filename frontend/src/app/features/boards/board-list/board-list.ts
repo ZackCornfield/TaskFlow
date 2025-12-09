@@ -30,14 +30,16 @@ export class BoardList implements OnInit {
   }
 
   loadBoards(): void {
-    this.boardService.getBoards().subscribe({
-      next: (boards) => {
-        this.boards.set(boards);
-      },
-      error: (err) => {
-        this.errorService.showError('Failed to load boards');
-      },
-    });
+    this.boardService
+      .getUserBoards(this.authService.currentUser()!.id)
+      .subscribe({
+        next: (boards) => {
+          this.boards.set(boards);
+        },
+        error: (err) => {
+          this.errorService.showError('Failed to load boards');
+        },
+      });
   }
 
   createBoard(): void {
@@ -60,6 +62,20 @@ export class BoardList implements OnInit {
       },
       error: () => {
         this.errorService.showError('Failed to create board');
+      },
+    });
+  }
+
+  deleteBoard(board: Board): void {
+    this.boardService.deleteBoard(board.id).subscribe({
+      next: () => {
+        this.boards.update((boards) => {
+          return boards.filter((b) => b.id !== board.id);
+        });
+        this.errorService.showSuccess('Board deleted successfully');
+      },
+      error: () => {
+        this.errorService.showError('Failed to delete board');
       },
     });
   }

@@ -131,7 +131,7 @@ namespace TaskFlowApi.Controllers
             }
         }
 
-        [HttpGet("{userId}/boards")]
+        [HttpGet("users/{userId}/boards")]
         [Authorize]
         public async Task<IActionResult> GetUserBoards(Guid userId)
         {

@@ -264,3 +264,19 @@
   background: #f9fafb;
   border-color: #d1d5db;
 }
+
+.btn-delete-board {
+  margin-top: 1rem;
+  padding: 0.4rem 0.7rem;
+  background: #ef4444;
+  color: white;
+  border: none;
+  border-radius: 0.5rem;
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.btn-delete-board:hover {
+  opacity: 0.9;
+}

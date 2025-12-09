@@ -31,6 +31,6 @@ export class BoardService {
   }
 
   getUserBoards(userId: string): Observable<Board[]> {
-    return this.http.get<Board[]>(`${this.API_URL}/user/${userId}`);
+    return this.http.get<Board[]>(`${this.API_URL}/users/${userId}/boards`);
   }
 }
