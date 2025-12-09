@@ -16,15 +16,14 @@
     <div class="boards-grid">
       @for (board of boards(); track board.id) {
       <div class="board-card" (click)="openBoard(board.id)">
-        <div (click)="$event.stopPropagation()">
-          <h3 class="board-title">{{ board.title }}</h3>
-          <p class="board-date">
-            Created At: {{ formatDate(board.createdAt) }}
-          </p>
-          <button class="btn-delete-board" (click)="deleteBoard(board)">
-            Delete
-          </button>
-        </div>
+        <h3 class="board-title">{{ board.title }}</h3>
+        <p class="board-date">Created At: {{ formatDate(board.createdAt) }}</p>
+        <button
+          class="btn-delete-board"
+          (click)="deleteBoard(board); $event.stopPropagation()"
+        >
+          Delete
+        </button>
       </div>
       } @if (boards().length === 0) {
       <p class="empty-state">No boards available. Create one to get started!</p>
