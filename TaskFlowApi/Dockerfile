@@ -7,10 +7,10 @@ ENV ASPNETCORE_URLS=http://+:5287
 FROM mcr.microsoft.com/dotnet/sdk:10.0-nanoserver-ltsc2022 AS build
 ARG configuration=Release
 WORKDIR /src
-COPY ["TaskFlowApi/TaskFlowApi.csproj", "TaskFlowApi/"]
-RUN dotnet restore "TaskFlowApi\TaskFlowApi.csproj"
+COPY ["TaskFlowApi.csproj", "./"]
+RUN dotnet restore "TaskFlowApi.csproj"
 COPY . .
-WORKDIR "/src/TaskFlowApi"
+WORKDIR "/src/."
 RUN dotnet build "TaskFlowApi.csproj" -c $configuration -o /app/build
 
 FROM build AS publish
