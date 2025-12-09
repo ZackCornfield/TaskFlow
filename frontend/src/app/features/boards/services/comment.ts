@@ -2,12 +2,13 @@ import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { Comment, CommentRequest } from '../modals/board';
 import { Observable } from 'rxjs';
+import { environment } from '../../../../environments/environment';
 @Injectable({
   providedIn: 'root',
 })
 export class CommentService {
   private http = inject(HttpClient);
-  private readonly API_URL = 'http://localhost:5287/api/comment';
+  private readonly API_URL = environment.apiUrl + '/comment';
 
   createComment(taskId: number, request: CommentRequest): Observable<Comment> {
     return this.http.post<Comment>(`${this.API_URL}/${taskId}`, request);
