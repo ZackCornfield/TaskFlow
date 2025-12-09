@@ -99,7 +99,8 @@ export interface TagRequest {
 }
 
 export interface AddBoardMemberRequest {
-  email: string;
+  userId?: string;
+  email?: string;
   boardId: number;
   role: 'admin' | 'member';
 }

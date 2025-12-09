@@ -52,7 +52,7 @@ public class BoardService(TaskFlowDbContext dbContext, IBoardMemberService board
             {
                 UserId = board.OwnerId,
                 BoardId = board.Id,
-                Role = "Owner",
+                Role = "admin",
             }
         );
 

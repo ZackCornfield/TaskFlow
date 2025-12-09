@@ -23,7 +23,11 @@ public class BoardMemberService(TaskFlowDbContext dbContext) : IBoardMemberServi
             return null;
         }
 
-        var user = await dbContext.Users.FirstOrDefaultAsync(u => u.Email == request.Email);
+        // Find the user based on UserId or Email
+        var user =
+            request.UserId != null
+                ? await dbContext.Users.FindAsync(request.UserId)
+                : await dbContext.Users.FirstOrDefaultAsync(u => u.Email == request.Email);
         if (user is null)
         {
             return null;

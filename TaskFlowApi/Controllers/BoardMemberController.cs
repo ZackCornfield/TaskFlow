@@ -25,11 +25,7 @@ namespace TaskFlowApi.Controllers
                     return NotFound("Board or user not found.");
                 }
 
-                return CreatedAtAction(
-                    nameof(AddBoardMember),
-                    new { boardId = request.BoardId, userId = request.UserId },
-                    boardMember
-                );
+                return CreatedAtAction(nameof(AddBoardMember), boardMember);
             }
             catch (InvalidOperationException ex)
             {
