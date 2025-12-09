@@ -2,12 +2,13 @@ import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { Tag, TagRequest } from '../modals/board';
+import { environment } from '../../../../environments/environment';
 @Injectable({
   providedIn: 'root',
 })
 export class TagService {
   private http = inject(HttpClient);
-  private readonly API_URL = 'http://localhost:5287/api/tag';
+  private readonly API_URL = environment.apiUrl + '/tags';
 
   getTags(): Observable<Tag[]> {
     return this.http.get<Tag[]>(this.API_URL);

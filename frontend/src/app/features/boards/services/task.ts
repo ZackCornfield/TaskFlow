@@ -2,12 +2,13 @@ import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { MoveTaskRequest, Task, TaskRequest } from '../modals/board';
 import { Observable } from 'rxjs';
+import { environment } from '../../../../environments/environment';
 @Injectable({
   providedIn: 'root',
 })
 export class TaskService {
   private http = inject(HttpClient);
-  private readonly API_URL = 'http://localhost:5287/api/task';
+  private readonly API_URL = environment.apiUrl + '/tasks';
 
   createTask(columnId: number, request: TaskRequest): Observable<Task> {
     return this.http.post<Task>(`${this.API_URL}/${columnId}`, request);
