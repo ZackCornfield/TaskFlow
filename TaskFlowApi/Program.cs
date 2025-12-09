@@ -80,7 +80,7 @@ builder.Services.AddCors(options =>
         policy =>
         {
             policy
-                .WithOrigins("http://localhost:4200")
+                .WithOrigins("http://localhost:4200", "https://taskflow-1-5p62.onrender.com")
                 .AllowAnyHeader()
                 .AllowAnyMethod()
                 .SetIsOriginAllowedToAllowWildcardSubdomains();
